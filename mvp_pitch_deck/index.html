@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Door MVP Deck</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <canvas id="ambientCanvas" aria-hidden="true"></canvas>
+    <div class="deck">
+      <header class="deck-header">
+        <div class="brand-lockup">
+          <div class="logo-mark" aria-hidden="true">
+            <span></span>
+          </div>
+          <div>
+            <h1>Our Door</h1>
+            <p class="deck-subtitle">A two-role learning assistant by Three's Company</p>
+          </div>
+        </div>
+        <div class="slide-pill" id="slideTitle">Problem</div>
+      </header>
+
+      <section class="slides">
+        <article class="slide active" data-title="Problem">
+          <p class="section-label">Deliverable 1</p>
+          <h2>Problem Framing</h2>
+          <p class="lead">Cohort programs move fast and have a lot of materials: PDFs, slides, markdown files, recordings, notes, and assignments.</p>
+          <div class="card-grid three-up">
+            <div class="info-card"><span>Students</span> Get overwhelmed and can feel behind quickly.</div>
+            <div class="info-card"><span>Current fallback</span> Ask classmates, Google, or use ChatGPT for direct answers.</div>
+            <div class="info-card"><span>Our angle</span> Use the program's own materials and show repeated confusion before students fall behind.</div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Users">
+          <p class="section-label">Deliverable 1</p>
+          <h2>Users + Why It Matters</h2>
+          <div class="user-grid">
+            <div class="persona-card">
+              <img src="assets/student.png" alt="Student" />
+              <div>
+                <span>Student</span>
+                <p>Asks questions in chat and gets three guided knocks: hint, curriculum reference, next thinking step.</p>
+              </div>
+            </div>
+            <div class="persona-card">
+              <img src="assets/teacher.png" alt="Admin or instructor" />
+              <div>
+                <span>Admin / Instructor</span>
+                <p>Sees logged question themes and stuck points so support can improve without technical help.</p>
+              </div>
+            </div>
+          </div>
+          <p class="plain-note user-goal-note">The goal is safe learning help for students and clear signals for admins.</p>
+        </article>
+
+        <article class="slide" data-title="Architecture">
+          <p class="section-label">Deliverable 2</p>
+          <h2>System Architecture</h2>
+          <p class="lead">Two roles, one curriculum-grounded assistant, and clear ownership across the stack.</p>
+          <div class="mermaid">
+            graph LR
+              AdminMaterials["Admin-provided<br/>course coverage materials"] --> Ingest["Ingest + chunk<br/>Owner: Ricky"]
+              Docs["Canvas curriculum docs<br/>Owner: Ricky"] --> Ingest
+              Ingest --> Chroma[("Chroma vector DB<br/>Owner: Ricky")]
+              Login["Login + JWT auth<br/>Owner: Andrea"] --> Router{"Student or Admin?"}
+              Router --> Chat["Student chat UI<br/>Owner: Andrea"]
+              Router --> Dash["Admin dashboard<br/>Owner: Andrea"]
+              Chat --> API["FastAPI backend"]
+              API --> RAG["RAG + guardrails<br/>Owner: Sam"]
+              Chroma --> RAG
+              RAG --> Chat
+              API --> Logs[("Conversation logs<br/>Owner: Andrea")]
+              Logs --> Dash
+          </div>
+        </article>
+
+        <article class="slide" data-title="MVP Scope">
+          <p class="section-label">Deliverable 3</p>
+          <h2>MVP Scope by June 2</h2>
+          <div class="scope-grid">
+            <div class="scope-panel in-scope">
+              <h3>IN</h3>
+              <ul>
+                <li>Canvas corpus ingested and queryable with real content</li>
+                <li>Backend ingestion path for admin-provided course coverage materials</li>
+                <li>Student chat UI</li>
+                <li>Three-knock guidance pattern: hint, reference, next step</li>
+                <li>Socratic response instead of direct answers</li>
+                <li>Guardrails on every response</li>
+                <li>Conversation logging: question, response, timestamp, topic</li>
+                <li>Admin view with logged conversations</li>
+                <li>Two hardcoded roles: student/admin</li>
+                <li>Docker Compose + GitHub CI</li>
+              </ul>
+            </div>
+            <div class="scope-panel out-scope">
+              <h3>OUT</h3>
+              <ul>
+                <li>Individual user accounts or registration</li>
+                <li>Student-specific history</li>
+                <li>Analytics or visualizations</li>
+                <li>Polished file upload UI for admins</li>
+                <li>Multi-cohort support</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="UX Flow">
+          <p class="section-label">Deliverable 4</p>
+          <h2>UX Flow / Prototype</h2>
+          <p class="lead">Our Door gives students one doorway into help: three guided knocks, then the door opens to understanding.</p>
+          <div class="demo-layout">
+            <div class="demo-video">
+              <span>Our Door Figma demo</span>
+              <video src="assets/figmademo2.mp4" title="Our Door Figma demo" controls muted playsinline></video>
+            </div>
+            <div class="flow-list">
+              <div><span>01</span> Login and choose Student or Admin</div>
+              <div><span>02</span> Student asks a curriculum question</div>
+              <div><span>03</span> Assistant gives three knocks: hint, reference, next step</div>
+              <div><span>04</span> Admin reviews logged stuck points</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Ownership">
+          <p class="section-label">Team</p>
+          <h2>Team Ownership</h2>
+          <div class="card-grid three-up">
+            <div class="info-card"><span>Sam</span> RAG, guardrails, and Socratic response logic.</div>
+            <div class="info-card"><span>Ricky</span> Ingestion pipeline, chunking, embeddings, Chroma vector DB.</div>
+            <div class="info-card"><span>Andrea</span> Frontend, auth/role routing, logging, admin dashboard.</div>
+          </div>
+          <div class="team-strip">
+            <img src="assets/threesCompany.png" alt="Team Three's Company" />
+            <div>
+              <span>Team</span>
+              <strong>Three's Company</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Value">
+          <p class="section-label">Close</p>
+          <h2>What This Proves</h2>
+          <p class="lead">Our Door proves a two-sided learning loop: students get guided knocks toward understanding, and admins see where support is needed.</p>
+          <div class="card-grid three-up">
+            <div class="info-card"><span>For students</span> Safer questions and better learning support.</div>
+            <div class="info-card"><span>For admins</span> Clearer visibility into curriculum friction.</div>
+            <div class="info-card"><span>For the program</span> Less guesswork, faster intervention, stronger outcomes.</div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="deck-footer">
+        <button id="prevBtn" class="nav-btn">&larr; Previous</button>
+        <div class="deck-progress" aria-hidden="true">
+          <span id="slideCounter">1 / 7</span>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+        <button id="nextBtn" class="nav-btn">Next &rarr;</button>
+      </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+      mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>
