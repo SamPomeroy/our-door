@@ -1,11 +1,134 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+import os
+import sqlite3
+from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from typing import List
 
-from auth import router as auth_router
+from dotenv import load_dotenv
 
-app = FastAPI(title="our-door — socratic learning bot")
+load_dotenv()
+
+import chromadb
+import openai
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from auth import get_current_role, router as auth_router
+
+DB_PATH = "logs.db"
+
+oai = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY", ""))
+
+SYSTEM_PROMPT = (
+    "You are a Socratic tutor for a coding cohort. Your only job is to guide students "
+    "to answers through questions. Never directly answer, explain solutions, or provide code. "
+    "Ask one or two targeted questions that push the student to think it through themselves."
+)
+
+STRICT_SYSTEM_PROMPT = (
+    "You are a strict Socratic tutor. You absolutely cannot give direct answers, code, or "
+    "explanations. Every sentence in your response must be a question that guides the student's thinking."
+)
+
+GUARDRAIL_PROMPT = (
+    "Does the following response directly answer a student's question, "
+    "or does it guide them with questions? Reply with only PASS or FAIL.\n\n"
+    "PASS = only guiding questions, no direct answers or solutions\n"
+    "FAIL = contains a direct answer, code snippet, or explanation\n\n"
+    "Response to evaluate:\n{response}"
+)
+
+
+# --- db helpers ---
+
+def init_db() -> None:
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS logs (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            question  TEXT NOT NULL,
+            response  TEXT NOT NULL,
+            topic     TEXT NOT NULL
+        )
+        """
+    )
+    conn.commit()
+    conn.close()
+
+
+def insert_log(question: str, response: str) -> None:
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute(
+        "INSERT INTO logs (timestamp, question, response, topic) VALUES (?, ?, ?, ?)",
+        (
+            datetime.now(timezone.utc).isoformat(),
+            question,
+            response,
+            question[:50],
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+
+def fetch_logs() -> list[dict]:
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("SELECT * FROM logs ORDER BY id DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+# --- rag helpers ---
+
+def embed(text: str) -> list[float]:
+    resp = oai.embeddings.create(model="text-embedding-3-small", input=text)
+    return resp.data[0].embedding
+
+
+def query_chroma(embedding: list[float], n: int = 5) -> list[str]:
+    try:
+        client = chromadb.HttpClient(host="localhost", port=8001)
+        collection = client.get_collection("curriculum")
+        results = collection.query(query_embeddings=[embedding], n_results=n)
+        return results["documents"][0]
+    except Exception:
+        # chroma not yet populated or unavailable — continue without context
+        return []
+
+
+def call_llm(system: str, user: str) -> str:
+    resp = oai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+        temperature=0.7,
+    )
+    return resp.choices[0].message.content.strip()
+
+
+def passes_guardrail(response: str) -> bool:
+    verdict = call_llm(
+        system="You are a strict classifier. Reply with only PASS or FAIL.",
+        user=GUARDRAIL_PROMPT.format(response=response),
+    )
+    return verdict.strip().upper().startswith("PASS")
+
+
+# --- app ---
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title="our-door — socratic learning bot", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,6 +141,8 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/auth")
 
 
+# --- models ---
+
 class ChatRequest(BaseModel):
     message: str
 
@@ -27,31 +152,33 @@ class ChatResponse(BaseModel):
 
 
 class LogEntry(BaseModel):
+    id: int
     timestamp: str
     question: str
     response: str
     topic: str
 
 
+# --- endpoints ---
+
 @app.post("/chat", response_model=ChatResponse)
-async def chat(req: ChatRequest):
-    # TODO: retrieve relevant chunks from chroma, build socratic prompt, call openai
-    return ChatResponse(response="What do YOU think the first step might be?")
+async def chat(req: ChatRequest, role: str = Depends(get_current_role)):
+    embedding = embed(req.message)
+    chunks = query_chroma(embedding)
+    context = "\n\n".join(chunks) if chunks else "No curriculum context available."
+    user_prompt = f"Curriculum context:\n{context}\n\nStudent question: {req.message}"
+
+    response = call_llm(SYSTEM_PROMPT, user_prompt)
+
+    if not passes_guardrail(response):
+        response = call_llm(STRICT_SYSTEM_PROMPT, user_prompt)
+
+    insert_log(req.message, response)
+    return ChatResponse(response=response)
 
 
 @app.get("/logs", response_model=List[LogEntry])
-async def get_logs():
-    return [
-        LogEntry(
-            timestamp="2026-05-05T09:00:00",
-            question="How do I reverse a string in Python?",
-            response="What do YOU think the first step might be?",
-            topic="strings",
-        ),
-        LogEntry(
-            timestamp="2026-05-05T10:15:00",
-            question="What is recursion?",
-            response="What do YOU think the first step might be?",
-            topic="recursion",
-        ),
-    ]
+async def get_logs(role: str = Depends(get_current_role)):
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="admin only")
+    return fetch_logs()
