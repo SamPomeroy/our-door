@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { login } from "../api.js";
+import logo from "../assets/our_door_logo.png";
 
-export default function Login() {
+export default function Login({ theme, onLogin, onToggleTheme }) {
   const [password, setPassword] = useState("");
-  const [token, setToken] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -13,9 +13,7 @@ export default function Login() {
 
     try {
       const response = await login(password, role);
-      setToken(response.access_token);
-      console.log(response);
-      console.log(response.role);
+      onLogin?.({ token: response.access_token, role: response.role ?? role });
     } catch (err) {
       console.error(err);
       setError("Login failed. Check the password and try again.");
@@ -25,8 +23,13 @@ export default function Login() {
   }
 
   return (
-    <main className="login-page">
+    <main className={`login-page theme-${theme}`}>
       <section className="login-panel" aria-labelledby="login-heading">
+        <button className="theme-toggle login-theme-toggle" type="button" onClick={onToggleTheme}>
+          <span className={`theme-icon ${theme === "dark" ? "sun" : "moon"}`} aria-hidden="true" />
+          <span className="sr-only">{theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}</span>
+        </button>
+        <img className="login-logo" src={logo} alt="" />
         <p className="login-kicker">Our Door</p>
         <h1 id="login-heading">Sign in</h1>
 
@@ -61,7 +64,6 @@ export default function Login() {
         </div>
 
         {error && <p className="login-error">{error}</p>}
-        {token && <p className="login-success">Token stored for this session.</p>}
       </section>
     </main>
   );
