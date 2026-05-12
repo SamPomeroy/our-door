@@ -361,11 +361,32 @@ Example `backend/.env.example`:
 ```env
 OPENAI_API_KEY=your-openai-api-key
 SECRET_KEY=replace-with-a-secure-dev-secret
+# Optional for local development/demo stability:
+MOCK_MODE=true
 ```
 
 `OPENAI_API_KEY` is required for OpenAI LLM and embedding calls.
 
 `SECRET_KEY` is used to sign JWTs for the MVP auth flow.
+
+### Mock Mode
+
+For development and demo purposes, the project supports a mock mode that allows the frontend and backend flow to run without making live OpenAI API calls.
+
+This is useful for:
+
+- Local UI development
+- Demo stability
+- Offline testing
+- Reducing API usage during development
+
+Example:
+
+```env
+MOCK_MODE=true
+```
+
+Mock mode is intended for local development and demos only.
 
 Do not commit `.env` files.
 
