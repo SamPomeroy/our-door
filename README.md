@@ -1,7 +1,9 @@
-<h1 align="center">Our Door</h1>
+<h1 align="center">Team Three's Company: Our Door</h1>
 
 <p align="center">
-  <img src="assets/logos/our-door.png" alt="Our Door logo" width="132" style="border-radius: 28px;" />
+  <picture>
+    <img src="assets/logos/our-door.png" alt="Our Door logo" width="132" style="border-radius: 28px;" />
+  </picture>
 </p>
 
 <p align="center">
@@ -419,10 +421,6 @@ This is a capstone MVP, not a production deployment.
 - Accessibility and UI polish.
 
 ## Team
-
-<p align="center">
-  <img src="assets/logos/threes-company.png" alt="Three's Company" width="110" />
-</p>
 
 | Member | Component |
 |---|---|
