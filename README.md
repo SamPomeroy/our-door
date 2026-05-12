@@ -1,21 +1,19 @@
-<p align="center">
-  <img src="assets/logos/threes-company.png" alt="Three's Company" width="72" />
-</p>
-
 <h1 align="center">Our Door</h1>
 
 <p align="center">
   <img src="assets/logos/our-door.png" alt="Our Door logo" width="132" style="border-radius: 28px;" />
 </p>
 
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=000)
-![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=fff)
-![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=fff)
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=fff)
-![OpenAI](https://img.shields.io/badge/OpenAI-LLM%20%2B%20Embeddings-412991?logo=openai&logoColor=fff)
-![Chroma](https://img.shields.io/badge/Chroma-Vector%20DB-5B3FD6)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=fff)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI-2088FF?logo=githubactions&logoColor=fff)
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=000" alt="React" />
+  <img src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=fff" alt="Vite" />
+  <img src="https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=fff" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=fff" alt="Python 3.11+" />
+  <img src="https://img.shields.io/badge/OpenAI-LLM%20%2B%20Embeddings-412991?logo=openai&logoColor=fff" alt="OpenAI" />
+  <img src="https://img.shields.io/badge/Chroma-Vector%20DB-5B3FD6" alt="Chroma" />
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=fff" alt="Docker Compose" />
+  <img src="https://img.shields.io/badge/GitHub%20Actions-CI-2088FF?logo=githubactions&logoColor=fff" alt="GitHub Actions" />
+</p>
 
 **Our Door** is a Socratic learning chatbot for coding cohort programs. Students ask private coding questions and receive guided responses that help them think through problems themselves. Instructors get a dashboard view into what students are asking and where they are getting stuck.
 
@@ -422,6 +420,10 @@ This is a capstone MVP, not a production deployment.
 
 ## Team
 
+<p align="center">
+  <img src="assets/logos/threes-company.png" alt="Three's Company" width="110" />
+</p>
+
 | Member | Component |
 |---|---|
 | Sam | FastAPI backend, RAG pipeline, guardrail system |
@@ -444,5 +446,5 @@ See [docs/SCOPE.md](docs/SCOPE.md).
 Built for AISE 26 Capstone | Columbia University 
 
 <p align="center">
-  <img src="assets/logos/columbia_white_logo.png" alt="Columbia University" width="96" />
+  <img src="assets/logos/columbia_white_logo.png" alt="Columbia University" width="128" />
 </p>
