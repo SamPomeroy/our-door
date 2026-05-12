@@ -19,6 +19,15 @@ from auth import get_current_role, router as auth_router
 DB_PATH = "logs.db"
 
 oai = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY", ""))
+MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
+
+MOCK_RESPONSES = [
+    "What have you tried so far? What does the error message tell you?",
+    "Interesting question. Can you break the problem into smaller pieces — what's the first thing that needs to happen?",
+    "What do you think that line of code is doing? What would happen if you removed it?",
+    "Have you looked at how a similar problem was solved before? What patterns do you notice?",
+    "What does the documentation say about that function? Does anything there give you a clue?",
+]
 
 SYSTEM_PROMPT = (
     "You are a Socratic tutor for a coding cohort. Your only job is to guide students "
@@ -85,6 +94,8 @@ def fetch_logs() -> list[dict]:
 # --- rag helpers ---
 
 def embed(text: str) -> list[float]:
+    if MOCK_MODE:
+        return [0.0] * 1536  # fake embedding, same dimension as text-embedding-3-small
     resp = oai.embeddings.create(model="text-embedding-3-small", input=text)
     return resp.data[0].embedding
 
@@ -101,6 +112,9 @@ def query_chroma(embedding: list[float], n: int = 5) -> list[str]:
 
 
 def call_llm(system: str, user: str) -> str:
+    if MOCK_MODE:
+        import random
+        return random.choice(MOCK_RESPONSES)
     resp = oai.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -113,6 +127,8 @@ def call_llm(system: str, user: str) -> str:
 
 
 def passes_guardrail(response: str) -> bool:
+    if MOCK_MODE:
+        return True  # mock responses are always valid
     verdict = call_llm(
         system="You are a strict classifier. Reply with only PASS or FAIL.",
         user=GUARDRAIL_PROMPT.format(response=response),
