@@ -4,8 +4,6 @@ tests pure/isolated functions that don't require a running server
 """
 
 import os
-import sqlite3
-import tempfile
 
 os.environ["MOCK_MODE"] = "true"
 os.environ["OPENAI_API_KEY"] = "mock-key"

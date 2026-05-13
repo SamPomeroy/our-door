@@ -4,7 +4,6 @@ requires MOCK_MODE=true (set in environment or backend/.env)
 """
 
 import os
-import pytest
 
 os.environ["MOCK_MODE"] = "true"
 os.environ["OPENAI_API_KEY"] = "mock-key"
