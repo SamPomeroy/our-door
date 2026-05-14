@@ -458,25 +458,6 @@ For local development only:
 
 ---
 
-## Architecture
-
-```mermaid
-flowchart LR
-    User[User] --> API[FastAPI Backend]
-    API --> Auth[JWT Auth]
-    Auth --> Embed[OpenAI Embeddings\ntext-embedding-3-small]
-    Embed --> Chroma[Chroma\nVector Store]
-    Chroma --> Retriever[Top-5 Chunk Retrieval]
-    Retriever --> LLM[GPT-4o-mini\nSocratic Prompt]
-    LLM --> Guard[Post-Gen Validator\nPASS / FAIL]
-    Guard --> Log[SQLite Logger]
-    Guard --> API
-    API --> User
-    Log --> Admin[Admin Dashboard\nGET /logs]
-```
-
----
-
 ## MVP Scope
 
 See [docs/SCOPE.md](docs/SCOPE.md).
