@@ -10,3 +10,13 @@ jobs:
           python-version: '3.11'
       - run: pip install flake8
       - run: flake8 backend/ ingest/ --max-line-length=120 --ignore=E501,W503,E402
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install pytest python-dotenv python-jose passlib chromadb openai
+      - run: MOCK_MODE=true pytest backend/tests/ -v
