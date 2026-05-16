@@ -1,10 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
+
 :root {
-  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --sans: "Sora", "Aptos", "Inter", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --display: "Space Grotesk", "Sora", "Aptos", system-ui, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 16px/1.5 var(--sans);
-  color: #1b2430;
-  background: #eef3ed;
+  color: #17131f;
+  background: #e8e3ee;
   color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
