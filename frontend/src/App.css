@@ -283,7 +283,7 @@
 }
 
 .sidebar-note {
-  margin-top: auto;
+  margin-top: 4px;
   padding: 16px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.52);
@@ -297,7 +297,7 @@
 }
 
 .ghost-button {
-  margin-top: 12px;
+  margin-top: auto;
   text-align: center;
 }
 
@@ -305,7 +305,7 @@
   min-height: calc(100svh - 36px);
   border-radius: 28px;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr);
   overflow: hidden;
 }
 
@@ -359,7 +359,7 @@
   flex-direction: column;
   gap: 14px;
   overflow: auto;
-  padding: 12px 30px 24px;
+  padding: 16px 30px 24px;
 }
 
 .message {
@@ -390,7 +390,11 @@
 }
 
 .pipeline-card {
-  width: min(620px, 88%);
+  width: fit-content;
+  max-width: min(420px, 88%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-style: normal;
 }
 
@@ -399,45 +403,29 @@
   font-weight: 800;
 }
 
-.pipeline-steps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.pipeline-steps span {
-  position: relative;
-  min-height: 38px;
-  display: flex;
+.heartbeat {
+  display: inline-flex;
   align-items: center;
-  padding: 0 10px 0 28px;
-  border: 1px solid rgba(31, 24, 36, 0.1);
-  border-radius: 999px;
-  color: #6f6878;
-  background: rgba(255, 255, 255, 0.68);
-  font-size: 12px;
-  font-weight: 800;
+  gap: 5px;
+  min-width: 48px;
+  height: 28px;
 }
 
-.pipeline-steps span::before {
-  content: "";
-  position: absolute;
-  left: 11px;
+.heartbeat span {
   width: 8px;
   height: 8px;
   border-radius: 999px;
   background: #d29b42;
-  box-shadow: 0 0 0 5px rgba(210, 155, 66, 0.14);
-  animation: signal-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 0 5px rgba(210, 155, 66, 0.13);
+  animation: heartbeat 1.05s ease-in-out infinite;
 }
 
-.pipeline-steps span:nth-child(2)::before {
-  animation-delay: 180ms;
+.heartbeat span:nth-child(2) {
+  animation-delay: 140ms;
 }
 
-.pipeline-steps span:nth-child(3)::before {
-  animation-delay: 360ms;
+.heartbeat span:nth-child(3) {
+  animation-delay: 280ms;
 }
 
 .knock-grid {
@@ -500,7 +488,7 @@
 }
 
 .chat-composer {
-  margin: 0 18px 18px;
+  margin: 8px 18px 0;
   border-radius: 22px;
   padding: 14px;
 }
@@ -690,8 +678,7 @@
 .theme-dark .sidebar-note,
 .theme-dark .message.assistant,
 .theme-dark .knock-card,
-.theme-dark .source-strip,
-.theme-dark .pipeline-steps span {
+.theme-dark .source-strip {
   background: rgba(255, 255, 255, 0.065);
   border-color: rgba(240, 184, 90, 0.12);
 }
@@ -706,11 +693,11 @@
 }
 
 .theme-dark .source-strip span,
-.theme-dark .pipeline-steps span {
+.theme-dark .pipeline-card > p {
   color: #d9cae0;
 }
 
-.theme-dark .pipeline-steps span::before {
+.theme-dark .heartbeat span {
   background: #f0b85a;
   box-shadow: 0 0 0 5px rgba(240, 184, 90, 0.14);
 }
@@ -780,16 +767,21 @@
   }
 }
 
-@keyframes signal-pulse {
+@keyframes heartbeat {
   0%,
   100% {
-    opacity: 0.55;
-    transform: scale(0.9);
+    opacity: 0.38;
+    transform: scale(0.72);
   }
 
-  50% {
+  35% {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1.25);
+  }
+
+  62% {
+    opacity: 0.68;
+    transform: scale(0.88);
   }
 }
 
@@ -829,10 +821,6 @@
   }
 
   .knock-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .pipeline-steps {
     grid-template-columns: 1fr;
   }
 
