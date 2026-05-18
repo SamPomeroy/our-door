@@ -183,7 +183,8 @@
   right: 18px;
 }
 
-.student-shell {
+.student-shell,
+.admin-shell {
   min-height: 100svh;
   display: grid;
   grid-template-columns: 290px minmax(0, 1fr);
@@ -201,7 +202,11 @@
 
 .student-sidebar,
 .chat-stage,
-.chat-composer {
+.chat-composer,
+.admin-stage,
+.admin-toolbar,
+.admin-log-card,
+.admin-empty {
   border: 1px solid rgba(255, 255, 255, 0.74);
   background: rgba(255, 255, 255, 0.54);
   box-shadow: 0 24px 70px rgba(31, 24, 36, 0.16);
@@ -296,17 +301,53 @@
   font-size: 14px;
 }
 
+.admin-summary {
+  display: grid;
+  gap: 10px;
+  margin: 28px 0;
+}
+
+.admin-summary section {
+  padding: 14px;
+  border: 1px solid rgba(31, 24, 36, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.admin-summary span {
+  display: block;
+  color: #7d5d1f;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.admin-summary strong {
+  display: block;
+  margin-top: 6px;
+  color: #17131f;
+  font-family: var(--display);
+  font-size: 24px;
+  line-height: 1;
+}
+
 .ghost-button {
   margin-top: auto;
   text-align: center;
 }
 
-.chat-stage {
+.chat-stage,
+.admin-stage {
   min-height: calc(100svh - 36px);
   border-radius: 28px;
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   overflow: hidden;
+}
+
+.admin-stage {
+  grid-template-rows: auto auto auto minmax(0, 1fr);
 }
 
 .chat-header {
@@ -585,6 +626,139 @@
   font-size: 14px;
 }
 
+.admin-toolbar {
+  margin: 8px 18px 0;
+  border-radius: 22px;
+  padding: 14px;
+}
+
+.admin-toolbar label {
+  display: block;
+  margin-bottom: 8px;
+  color: #6f6878;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-toolbar > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.admin-toolbar input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid rgba(31, 24, 36, 0.1);
+  border-radius: 16px;
+  padding: 0 14px;
+  color: #17131f;
+  background: rgba(255, 255, 255, 0.74);
+  outline: none;
+}
+
+.admin-toolbar input:focus {
+  border-color: rgba(210, 155, 66, 0.62);
+  box-shadow: 0 0 0 4px rgba(210, 155, 66, 0.14);
+}
+
+.admin-toolbar button {
+  min-width: 104px;
+  min-height: 46px;
+  border: 0;
+  border-radius: 16px;
+  color: #fff;
+  background: #17131f;
+  font-weight: 900;
+  box-shadow: 0 14px 24px rgba(31, 24, 36, 0.16);
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.admin-toolbar button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.admin-toolbar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.admin-error {
+  margin: 12px 30px 0;
+  color: #a23a31;
+  font-size: 14px;
+}
+
+.admin-log-list {
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  overflow: auto;
+  padding: 16px 30px 24px;
+}
+
+.admin-log-card,
+.admin-empty {
+  border-radius: 20px;
+  padding: 16px;
+  animation: message-enter 280ms ease both;
+}
+
+.log-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(31, 24, 36, 0.1);
+}
+
+.log-card-header span,
+.admin-empty span {
+  display: block;
+  color: #7d5d1f;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.log-card-header time,
+.log-card-header strong {
+  color: #6f6878;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-log-card dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 0;
+}
+
+.admin-log-card dt {
+  margin-bottom: 6px;
+  color: #6f6878;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.admin-log-card dd,
+.admin-empty p {
+  margin: 0;
+  color: #3b3444;
+  font-size: 14px;
+}
+
+.admin-empty p {
+  margin-top: 8px;
+}
+
 .theme-dark.login-page {
   background-size: 140% 140%;
   background:
@@ -603,6 +777,10 @@
 .theme-dark .login-kicker,
 .theme-dark .brand-lockup span,
 .theme-dark .sidebar-note span,
+.theme-dark .admin-summary span,
+.theme-dark .admin-toolbar label,
+.theme-dark .log-card-header span,
+.theme-dark .admin-empty span,
 .theme-dark .eyebrow,
 .theme-dark .chat-composer label,
 .theme-dark .knock-card span {
@@ -612,24 +790,28 @@
 .theme-dark .login-panel h1,
 .theme-dark .field-label,
 .theme-dark .brand-lockup p,
-.theme-dark .chat-header h1 {
+.theme-dark .chat-header h1,
+.theme-dark .admin-summary strong {
   color: #f5edf8;
 }
 
 .theme-dark .password-input,
-.theme-dark .composer-row textarea {
+.theme-dark .composer-row textarea,
+.theme-dark .admin-toolbar input {
   color: #f3eaf7;
   background: rgba(16, 13, 22, 0.72);
   border-color: rgba(240, 184, 90, 0.18);
 }
 
 .theme-dark .password-input::placeholder,
-.theme-dark .composer-row textarea::placeholder {
+.theme-dark .composer-row textarea::placeholder,
+.theme-dark .admin-toolbar input::placeholder {
   color: rgba(243, 234, 247, 0.48);
 }
 
 .theme-dark .password-input:focus,
-.theme-dark .composer-row textarea:focus {
+.theme-dark .composer-row textarea:focus,
+.theme-dark .admin-toolbar input:focus {
   border-color: rgba(240, 184, 90, 0.58);
   outline-color: rgba(240, 184, 90, 0.16);
   box-shadow: 0 0 0 4px rgba(240, 184, 90, 0.12);
@@ -637,6 +819,7 @@
 
 .theme-dark .role-actions button,
 .theme-dark .composer-row button,
+.theme-dark .admin-toolbar button,
 .theme-dark .student-nav button.is-active {
   color: #111017;
   background: linear-gradient(135deg, #f0b85a, #d49638);
@@ -644,11 +827,13 @@
 }
 
 .theme-dark .role-actions button:hover:not(:disabled),
-.theme-dark .composer-row button:hover:not(:disabled) {
+.theme-dark .composer-row button:hover:not(:disabled),
+.theme-dark .admin-toolbar button:hover:not(:disabled) {
   background: linear-gradient(135deg, #f4c97b, #dfa44a);
 }
 
-.theme-dark.student-shell {
+.theme-dark.student-shell,
+.theme-dark.admin-shell {
   color: #f3eaf7;
   background-size: 140% 140%;
   background:
@@ -660,7 +845,11 @@
 
 .theme-dark .student-sidebar,
 .theme-dark .chat-stage,
-.theme-dark .chat-composer {
+.theme-dark .chat-composer,
+.theme-dark .admin-stage,
+.theme-dark .admin-toolbar,
+.theme-dark .admin-log-card,
+.theme-dark .admin-empty {
   background: rgba(26, 20, 36, 0.6);
   border-color: rgba(240, 184, 90, 0.13);
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38);
@@ -669,7 +858,8 @@
 .theme-dark .student-nav button,
 .theme-dark .ghost-button,
 .theme-dark .theme-toggle,
-.theme-dark .status-pill {
+.theme-dark .status-pill,
+.theme-dark .admin-summary section {
   color: #f0e7f4;
   background: rgba(255, 255, 255, 0.055);
   border-color: rgba(240, 184, 90, 0.14);
@@ -693,8 +883,16 @@
 }
 
 .theme-dark .source-strip span,
-.theme-dark .pipeline-card > p {
+.theme-dark .pipeline-card > p,
+.theme-dark .log-card-header time,
+.theme-dark .log-card-header strong,
+.theme-dark .admin-log-card dt {
   color: #d9cae0;
+}
+
+.theme-dark .admin-log-card dd,
+.theme-dark .admin-empty p {
+  color: #e8dff0;
 }
 
 .theme-dark .heartbeat span {
@@ -729,7 +927,8 @@
 }
 
 .theme-dark .login-error,
-.theme-dark .composer-error {
+.theme-dark .composer-error,
+.theme-dark .admin-error {
   color: #ffb5a8;
 }
 
@@ -802,6 +1001,11 @@
     padding: 10px;
   }
 
+  .admin-shell {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
   .student-sidebar {
     min-height: auto;
   }
@@ -815,8 +1019,13 @@
     min-height: calc(100svh - 120px);
   }
 
+  .admin-stage {
+    min-height: calc(100svh - 120px);
+  }
+
   .chat-header,
-  .message-list {
+  .message-list,
+  .admin-log-list {
     padding-inline: 18px;
   }
 
@@ -834,6 +1043,15 @@
 
   .composer-row {
     grid-template-columns: 1fr;
+  }
+
+  .admin-toolbar > div,
+  .admin-log-card dl {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-error {
+    margin-inline: 18px;
   }
 }
 
