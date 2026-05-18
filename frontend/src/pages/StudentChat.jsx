@@ -81,6 +81,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
           id: crypto.randomUUID(),
           role: "assistant",
           text: assistantText,
+          knocks: response.knock ? [{ title: response.knock, body: assistantText }] : null,
         },
       ]);
     } catch (err) {
@@ -137,7 +138,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
         <div className="message-list" aria-live="polite">
           {messages.map((message) => (
             <article className={`message ${message.role}`} key={message.id}>
-              <p>{message.text}</p>
+              {!message.knocks && <p>{message.text}</p>}
               {message.knocks && (
                 <div className="knock-grid">
                   {message.knocks.map((knock) => (
