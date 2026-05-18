@@ -8,26 +8,6 @@ const starterMessages = [
     role: "student",
     text: "I understand functions, but I get lost when scope changes inside another function.",
   },
-  {
-    id: 2,
-    role: "assistant",
-    text: "Let's slow that down and look for the boundary between where a variable is created and where it is being read.",
-    source: "python_functions_and_scope.md",
-    knocks: [
-      {
-        title: "Hint",
-        body: "Find the line where the variable first gets assigned. Then ask: is this inside or outside the function that tries to use it?",
-      },
-      {
-        title: "Curriculum",
-        body: "Review the Python functions and scope notes, especially local variables and function parameters.",
-      },
-      {
-        title: "Next step",
-        body: "Write a tiny two-function example and predict the output before running it.",
-      },
-    ],
-  },
 ];
 
 const promptSuggestions = [
@@ -37,10 +17,27 @@ const promptSuggestions = [
   "Can you guide me through Python scope without giving me the answer?",
 ];
 
-const pipelineSteps = [
-  "Reading curriculum context",
-  "Choosing a Socratic angle",
-  "Checking the guardrail",
+// Sidebar guide copy lives here so the buttons and the displayed explanation
+// stay in sync as Our Door's language changes.
+const toolGuides = [
+  {
+    id: "ask",
+    label: "Ask",
+    title: "Ask Our Door",
+    body: "Bring the exact spot where you are stuck. Our Door answers with one useful nudge at a time instead of handing over the solution.",
+  },
+  {
+    id: "curriculum",
+    label: "Curriculum",
+    title: "Curriculum link",
+    body: "Use this to connect the question back to cohort material, notes, or a concept you have already seen.",
+  },
+  {
+    id: "knocks",
+    label: "Three knocks",
+    title: "Three knocks",
+    body: "Knock one is a hint. Knock two points to the right curriculum. Knock three gives the next step or question.",
+  },
 ];
 
 export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) {
@@ -48,6 +45,23 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
   const [draft, setDraft] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+  const [activeGuide, setActiveGuide] = useState(toolGuides[0]);
+
+  // The API can return all three knocks as one numbered text response. This
+  // turns that response into card data the chat can render cleanly.
+  function parseKnocks(text) {
+    const hint = text.match(/1\.\s*Hint[:\s]+(.+?)(?=2\.\s*Curriculum|$)/is);
+    const curriculum =
+      text.match(/2\.\s*Curriculum[^:]*[:\s]+(.+?)(?=3\.\s*Next|$)/is);
+    const next = text.match(/3\.\s*Next[^:]*[:\s]+(.+?)$/is);
+    if (!hint || !curriculum || !next) return null;
+
+    return [
+      { title: "Hint", body: hint[1].trim() },
+      { title: "Curriculum", body: curriculum[1].trim() },
+      { title: "Next step", body: next[1].trim() },
+    ];
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -74,13 +88,17 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
         response.message ??
         response.answer ??
         "I found a path forward. Try breaking the problem into the smallest step you can test.";
+      // Students should receive one nudge at a time. Parsed responses render as
+      // a single knock card instead of repeating the full numbered text blob.
+      const assistantKnocks = parseKnocks(assistantText)?.slice(0, 1);
 
       setMessages((currentMessages) => [
         ...currentMessages,
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          text: assistantText,
+          text: assistantKnocks ? "" : assistantText,
+          knocks: assistantKnocks,
         },
       ]);
     } catch (err) {
@@ -103,14 +121,22 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
         </div>
 
         <nav className="student-nav" aria-label="Chat tools">
-          <button className="is-active" type="button">Ask</button>
-          <button type="button">Curriculum</button>
-          <button type="button">Three knocks</button>
+          {toolGuides.map((guide) => (
+            <button
+              className={activeGuide.id === guide.id ? "is-active" : ""}
+              key={guide.id}
+              type="button"
+              onClick={() => setActiveGuide(guide)}
+              aria-pressed={activeGuide.id === guide.id}
+            >
+              {guide.label}
+            </button>
+          ))}
         </nav>
 
         <div className="sidebar-note">
-          <span>Grounded in cohort material</span>
-          <p>Answers guide your thinking without jumping straight to the solution.</p>
+          <span>{activeGuide.title}</span>
+          <p>{activeGuide.body}</p>
         </div>
 
         <button className="ghost-button" type="button" onClick={onSignOut}>
@@ -133,41 +159,6 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
             <span className="sr-only">{theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}</span>
           </button>
         </header>
-
-        <div className="message-list" aria-live="polite">
-          {messages.map((message) => (
-            <article className={`message ${message.role}`} key={message.id}>
-              <p>{message.text}</p>
-              {message.knocks && (
-                <div className="knock-grid">
-                  {message.knocks.map((knock) => (
-                    <section className="knock-card" key={knock.title}>
-                      <span>{knock.title}</span>
-                      <p>{knock.body}</p>
-                    </section>
-                  ))}
-                </div>
-              )}
-              {message.source && (
-                <div className="source-strip">
-                  <span>Referenced</span>
-                  <p>{message.source}</p>
-                </div>
-              )}
-            </article>
-          ))}
-
-          {isSending && (
-            <article className="message assistant thinking pipeline-card">
-              <p>Preparing a guided response</p>
-              <div className="pipeline-steps">
-                {pipelineSteps.map((step) => (
-                  <span key={step}>{step}</span>
-                ))}
-              </div>
-            </article>
-          )}
-        </div>
 
         <form className="chat-composer" onSubmit={handleSubmit}>
           <label htmlFor="student-question">Ask a coding question</label>
@@ -192,6 +183,41 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
           </div>
           {error && <p className="composer-error">{error}</p>}
         </form>
+
+        <div className="message-list" aria-live="polite">
+          {messages.map((message) => (
+            <article className={`message ${message.role}`} key={message.id}>
+              {message.text && <p>{message.text}</p>}
+              {message.knocks && (
+                <div className="knock-grid">
+                  {message.knocks.map((knock) => (
+                    <section className="knock-card" key={knock.title}>
+                      <span>{knock.title}</span>
+                      <p>{knock.body}</p>
+                    </section>
+                  ))}
+                </div>
+              )}
+              {message.source && (
+                <div className="source-strip">
+                  <span>Referenced</span>
+                  <p>{message.source}</p>
+                </div>
+              )}
+            </article>
+          ))}
+
+          {isSending && (
+            <article className="message assistant thinking pipeline-card">
+              <div className="heartbeat" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </div>
+              <p>Knocking on Our Door</p>
+            </article>
+          )}
+        </div>
       </section>
     </main>
   );

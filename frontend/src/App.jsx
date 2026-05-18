@@ -21,7 +21,14 @@ function App() {
   }
 
   if (session?.role === "admin") {
-    return <AdminDashboard />;
+    return (
+      <AdminDashboard
+        token={session.token}
+        theme={theme}
+        onSignOut={() => setSession(null)}
+        onToggleTheme={toggleTheme}
+      />
+    );
   }
 
   return <Login theme={theme} onLogin={(nextSession) => setSession(nextSession)} onToggleTheme={toggleTheme} />;

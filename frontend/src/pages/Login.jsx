@@ -7,6 +7,8 @@ export default function Login({ theme, onLogin, onToggleTheme }) {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // The same password field can sign in as either app role; the backend decides
+  // whether the supplied password is allowed for that role.
   async function handleLogin(role) {
     setError("");
     setIsLoading(true);
