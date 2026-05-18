@@ -17,8 +17,7 @@ const promptSuggestions = [
   "Can you guide me through Python scope without giving me the answer?",
 ];
 
-// Sidebar guide copy lives here so the buttons and the displayed explanation
-// stay in sync as Our Door's language changes.
+// sidebar guide copy lives here so buttons and displayed explanation stay in sync
 const toolGuides = [
   {
     id: "ask",
@@ -47,22 +46,6 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
   const [error, setError] = useState("");
   const [activeGuide, setActiveGuide] = useState(toolGuides[0]);
 
-  // The API can return all three knocks as one numbered text response. This
-  // turns that response into card data the chat can render cleanly.
-  function parseKnocks(text) {
-    const hint = text.match(/1\.\s*Hint[:\s]+(.+?)(?=2\.\s*Curriculum|$)/is);
-    const curriculum =
-      text.match(/2\.\s*Curriculum[^:]*[:\s]+(.+?)(?=3\.\s*Next|$)/is);
-    const next = text.match(/3\.\s*Next[^:]*[:\s]+(.+?)$/is);
-    if (!hint || !curriculum || !next) return null;
-
-    return [
-      { title: "Hint", body: hint[1].trim() },
-      { title: "Curriculum", body: curriculum[1].trim() },
-      { title: "Next step", body: next[1].trim() },
-    ];
-  }
-
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -88,17 +71,14 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
         response.message ??
         response.answer ??
         "I found a path forward. Try breaking the problem into the smallest step you can test.";
-      // Students should receive one nudge at a time. Parsed responses render as
-      // a single knock card instead of repeating the full numbered text blob.
-      const assistantKnocks = parseKnocks(assistantText)?.slice(0, 1);
 
       setMessages((currentMessages) => [
         ...currentMessages,
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          text: assistantKnocks ? "" : assistantText,
-          knocks: assistantKnocks,
+          text: assistantText,
+          knocks: response.knock ? [{ title: response.knock, body: assistantText }] : null,
         },
       ]);
     } catch (err) {
@@ -187,7 +167,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
         <div className="message-list" aria-live="polite">
           {messages.map((message) => (
             <article className={`message ${message.role}`} key={message.id}>
-              {message.text && <p>{message.text}</p>}
+              {!message.knocks && message.text && <p>{message.text}</p>}
               {message.knocks && (
                 <div className="knock-grid">
                   {message.knocks.map((knock) => (

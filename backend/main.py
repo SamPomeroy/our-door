@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from collections import defaultdict
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import List
@@ -23,41 +24,55 @@ MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
 
 MOCK_RESPONSES = [
     "What have you tried so far? What does the error message tell you?",
-    "Interesting question. Can you break the problem into smaller pieces — what's the first thing that needs to happen?",
-    "What do you think that line of code is doing? What would happen if you removed it?",
-    "Have you looked at how a similar problem was solved before? What patterns do you notice?",
-    "What does the documentation say about that function? Does anything there give you a clue?",
+    "Have a look at the relevant section in your curriculum notes — does anything there connect to what you're seeing?",
+    "Try writing the smallest possible version of this that you can test on its own. What's the first step?",
 ]
 
-SYSTEM_PROMPT = (
-    "You are a Socratic tutor for a coding cohort using the Three Knocks model. "
-    "Never give direct answers, solutions, or code. "
-    "Every response must include exactly three parts in this order:\n"
-    "1. Hint: a small nudge toward the relevant concept, framed as a question\n"
-    "2. Curriculum reference: point back to a relevant concept, topic, or pattern the student has likely seen\n"
-    "3. Next step: a concrete action the student can take to keep moving, without giving the answer\n"
-    "Keep each part brief. The student should do the thinking, not you."
-)
+# three knocks progression — one knock per exchange, cycling per user session
+KNOCK_PROMPTS = [
+    # knock 1 — hint
+    (
+        "You are a Socratic tutor for a coding cohort. "
+        "The student is asking their first question on this topic. "
+        "Give only a HINT — one short guiding question that nudges them toward the relevant concept. "
+        "Do not give the answer, do not reference curriculum materials, do not suggest a next step. "
+        "One question only. Be brief."
+    ),
+    # knock 2 — curriculum reference
+    (
+        "You are a Socratic tutor for a coding cohort. "
+        "The student has already received a hint and is still working through the problem. "
+        "Give only a CURRICULUM REFERENCE — name a specific topic, concept, or pattern from their coursework that is relevant. "
+        "Point them back to something they have already learned. Do not explain it, do not give the answer, do not ask a question. "
+        "One reference only. Be brief."
+    ),
+    # knock 3 — next step
+    (
+        "You are a Socratic tutor for a coding cohort. "
+        "The student has had a hint and a curriculum reference and is still stuck. "
+        "Give only a NEXT STEP — one concrete action they can take right now to move forward on their own. "
+        "Do not give the answer, do not explain the concept. One action only. Be brief."
+    ),
+]
 
-STRICT_SYSTEM_PROMPT = (
-    "You are a strict Socratic tutor using the Three Knocks model. "
-    "You absolutely cannot give direct answers, code, or explanations. "
-    "Respond with exactly three parts:\n"
-    "1. Hint: one guiding question that nudges toward the concept\n"
-    "2. Curriculum reference: name a relevant topic or pattern, do not explain it\n"
-    "3. Next step: one concrete action the student can take on their own\n"
-    "Do not explain anything. Do not write code. Every sentence must guide, not answer."
+KNOCK_LABELS = ["Hint", "Curriculum reference", "Next step"]
+
+STRICT_FALLBACK_PROMPT = (
+    "You are a strict Socratic tutor. You must not give direct answers, code, or full explanations. "
+    "Ask one guiding question or name one relevant concept or suggest one concrete action. "
+    "Nothing more."
 )
 
 GUARDRAIL_PROMPT = (
-    "Does the following response follow the Three Knocks model correctly?\n"
-    "Three Knocks = a Hint (guiding question), a Curriculum reference (topic pointer), "
-    "and a Next step (concrete action) -- with no direct answers, code, or explanations.\n\n"
+    "Does the following response give a direct answer, working code, or a full explanation to a coding question?\n\n"
     "Reply with only PASS or FAIL.\n"
-    "PASS = follows Three Knocks, no direct answers or solutions\n"
-    "FAIL = gives a direct answer, contains code, or skips the model entirely\n\n"
+    "PASS = does not give a direct answer or solution\n"
+    "FAIL = gives a direct answer, contains working code, or fully explains how to solve it\n\n"
     "Response to evaluate:\n{response}"
 )
+
+# per-user turn counter — tracks which knock to deliver next
+_turns: dict[str, int] = defaultdict(int)
 
 
 # --- db helpers ---
@@ -176,6 +191,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     response: str
+    knock: str  # "Hint", "Curriculum reference", or "Next step"
 
 
 class LogEntry(BaseModel):
@@ -190,18 +206,21 @@ class LogEntry(BaseModel):
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest, role: str = Depends(get_current_role)):
+    turn = _turns[role] % 3
+    _turns[role] += 1
+
     embedding = embed(req.message)
     chunks = query_chroma(embedding)
     context = "\n\n".join(chunks) if chunks else "No curriculum context available."
     user_prompt = f"Curriculum context:\n{context}\n\nStudent question: {req.message}"
 
-    response = call_llm(SYSTEM_PROMPT, user_prompt)
+    response = call_llm(KNOCK_PROMPTS[turn], user_prompt)
 
     if not passes_guardrail(response):
-        response = call_llm(STRICT_SYSTEM_PROMPT, user_prompt)
+        response = call_llm(STRICT_FALLBACK_PROMPT, user_prompt)
 
     insert_log(req.message, response)
-    return ChatResponse(response=response)
+    return ChatResponse(response=response, knock=KNOCK_LABELS[turn])
 
 
 @app.get("/logs", response_model=List[LogEntry])
