@@ -1,14 +1,9 @@
 import { useState } from "react";
 import { sendMessage } from "../api.js";
 import logo from "../assets/our_door_logo.png";
+import { logger } from "../utils/logger.js";
 
-const starterMessages = [
-  {
-    id: 1,
-    role: "student",
-    text: "I understand functions, but I get lost when scope changes inside another function.",
-  },
-];
+const starterMessages = [];
 
 const promptSuggestions = [
   "I keep mixing up parameters and arguments.",
@@ -39,19 +34,41 @@ const toolGuides = [
   },
 ];
 
+const knockTitles = {
+  Hint: "Knock 1 - Hint",
+  "Curriculum reference": "Knock 2 - Curriculum Reference",
+  "Next step": "Knock 3 - Next Step",
+};
+
 export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) {
   const [messages, setMessages] = useState(starterMessages);
   const [draft, setDraft] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+  const [chatStatus, setChatStatus] = useState("empty");
   const [activeGuide, setActiveGuide] = useState(toolGuides[0]);
   const showPromptSuggestions = messages.length === starterMessages.length;
+
+  const isEmpty = messages.length === 0;
+  const statusText = {
+    empty: "Ready",
+    loading: "Thinking",
+    success: "Response ready",
+    error: "Try again",
+  }[chatStatus];
+
+  function getKnockTitle(knock) {
+    return knockTitles[knock] ?? knock ?? "Our Door";
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
 
     const nextMessage = draft.trim();
     if (!nextMessage || isSending) return;
+
+    logger.info("StudentChat", "Sending message");
+    logger.debug("StudentChat", "Loading started");
 
     setMessages((currentMessages) => [
       ...currentMessages,
@@ -64,6 +81,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
     setDraft("");
     setError("");
     setIsSending(true);
+    setChatStatus("loading");
 
     try {
       const response = await sendMessage(nextMessage, token);
@@ -73,20 +91,26 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
         response.answer ??
         "I found a path forward. Try breaking the problem into the smallest step you can test.";
 
+      logger.info("StudentChat", "Chat request succeeded", { knock: response.knock });
+
       setMessages((currentMessages) => [
         ...currentMessages,
         {
           id: crypto.randomUUID(),
           role: "assistant",
           text: assistantText,
-          knocks: response.knock ? [{ title: response.knock, body: assistantText }] : null,
+          knocks: response.knock ? [{ title: getKnockTitle(response.knock), body: assistantText }] : null,
         },
       ]);
+      setChatStatus("success");
     } catch (err) {
-      console.error(err);
-      setError("Our Door could not answer yet. Check that the backend is running, then try again.");
+      logger.error("StudentChat", "Chat request failed", { status: err?.response?.status });
+      logger.debug("StudentChat", "Error fallback triggered");
+      setChatStatus("error");
+      setError("Something went wrong. Please try again.");
     } finally {
       setIsSending(false);
+      logger.debug("StudentChat", "Loading finished");
     }
   }
 
@@ -133,7 +157,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
           </div>
           <div className="status-pill">
             <span aria-hidden="true" />
-            RAG ready
+            {statusText}
           </div>
           <button className="theme-toggle" type="button" onClick={onToggleTheme}>
             <span className={`theme-icon ${theme === "dark" ? "sun" : "moon"}`} aria-hidden="true" />
@@ -142,6 +166,23 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
         </header>
 
         <div className="message-list" aria-live="polite">
+          {isEmpty && (
+            <section className="chat-empty-state">
+              <span>Welcome to Our Door</span>
+              <h2>Ask what you are stuck on.</h2>
+              <p>
+                Share the smallest piece of the problem you can name. Our Door will answer with one guided knock at a time.
+              </p>
+              <div className="prompt-rail" aria-label="Suggested questions">
+                {promptSuggestions.map((prompt) => (
+                  <button type="button" key={prompt} onClick={() => setDraft(prompt)}>
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
           {messages.map((message) => (
             <article className={`message ${message.role} ${message.knocks ? "has-knocks" : ""}`} key={message.id}>
               {!message.knocks && message.text && <p>{message.text}</p>}

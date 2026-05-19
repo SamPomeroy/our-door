@@ -406,6 +406,42 @@
   padding: 12px 30px 18px;
 }
 
+.chat-empty-state {
+  width: min(760px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 22px;
+  padding: 18px;
+  color: #2a2531;
+  background: rgba(255, 255, 255, 0.54);
+  box-shadow: 0 18px 44px rgba(31, 24, 36, 0.12);
+}
+
+.chat-empty-state span {
+  color: #7d5d1f;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.chat-empty-state h2 {
+  margin: 8px 0 6px;
+  color: #17131f;
+  font-family: var(--display);
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1;
+}
+
+.chat-empty-state p {
+  max-width: 620px;
+  color: #6f6878;
+  font-size: 14px;
+}
+
+.chat-empty-state .prompt-rail {
+  padding: 14px 0 0;
+}
+
 .message {
   width: min(760px, 88%);
   border-radius: 22px;
@@ -798,6 +834,7 @@
 .theme-dark .login-kicker,
 .theme-dark .brand-lockup span,
 .theme-dark .sidebar-note span,
+.theme-dark .chat-empty-state span,
 .theme-dark .admin-summary span,
 .theme-dark .admin-toolbar label,
 .theme-dark .log-card-header span,
@@ -811,6 +848,7 @@
 .theme-dark .login-panel h1,
 .theme-dark .field-label,
 .theme-dark .brand-lockup p,
+.theme-dark .chat-empty-state h2,
 .theme-dark .chat-header h1,
 .theme-dark .admin-summary strong {
   color: #f5edf8;
@@ -887,6 +925,7 @@
 }
 
 .theme-dark .sidebar-note,
+.theme-dark .chat-empty-state,
 .theme-dark .message.assistant,
 .theme-dark .knock-card,
 .theme-dark .source-strip {
@@ -901,6 +940,7 @@
 }
 
 .theme-dark .sidebar-note p,
+.theme-dark .chat-empty-state p,
 .theme-dark .message,
 .theme-dark .message.assistant,
 .theme-dark .knock-card p,
