@@ -47,6 +47,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
   const [error, setError] = useState("");
   const [chatStatus, setChatStatus] = useState("empty");
   const [activeGuide, setActiveGuide] = useState(toolGuides[0]);
+  const showPromptSuggestions = messages.length === starterMessages.length;
 
   const isEmpty = messages.length === 0;
   const statusText = {
@@ -164,24 +165,6 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
           </button>
         </header>
 
-        <form className="chat-composer" onSubmit={handleSubmit}>
-          <label htmlFor="student-question">Ask a coding question</label>
-          <div className="composer-row">
-            <textarea
-              id="student-question"
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder="Example: I keep mixing up parameters and arguments..."
-              rows="3"
-              disabled={isSending}
-            />
-            <button type="submit" disabled={!draft.trim() || isSending}>
-              {isSending ? "Thinking..." : "Send"}
-            </button>
-          </div>
-          {error && <p className="composer-error">{error}</p>}
-        </form>
-
         <div className="message-list" aria-live="polite">
           {isEmpty && (
             <section className="chat-empty-state">
@@ -201,7 +184,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
           )}
 
           {messages.map((message) => (
-            <article className={`message ${message.role}`} key={message.id}>
+            <article className={`message ${message.role} ${message.knocks ? "has-knocks" : ""}`} key={message.id}>
               {!message.knocks && message.text && <p>{message.text}</p>}
               {message.knocks && (
                 <div className="knock-grid">
@@ -233,6 +216,32 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
             </article>
           )}
         </div>
+
+        <form className="chat-composer" onSubmit={handleSubmit}>
+          <label htmlFor="student-question">Ask a coding question</label>
+          {showPromptSuggestions && (
+            <div className="prompt-rail" aria-label="Suggested questions">
+              {promptSuggestions.map((prompt) => (
+                <button type="button" key={prompt} onClick={() => setDraft(prompt)}>
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="composer-row">
+            <textarea
+              id="student-question"
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder="Example: I keep mixing up parameters and arguments..."
+              rows="3"
+            />
+            <button type="submit" disabled={!draft.trim() || isSending}>
+              Send
+            </button>
+          </div>
+          {error && <p className="composer-error">{error}</p>}
+        </form>
       </section>
     </main>
   );
