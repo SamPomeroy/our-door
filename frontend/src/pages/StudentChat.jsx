@@ -47,7 +47,6 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
   const [error, setError] = useState("");
   const [chatStatus, setChatStatus] = useState("empty");
   const [activeGuide, setActiveGuide] = useState(toolGuides[0]);
-  const showPromptSuggestions = messages.length === starterMessages.length;
 
   const isEmpty = messages.length === 0;
   const statusText = {
@@ -166,7 +165,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
         </header>
 
         <div className="message-list" aria-live="polite">
-          {isEmpty && (
+          {isEmpty ? (
             <section className="chat-empty-state">
               <span>Welcome to Our Door</span>
               <h2>Ask what you are stuck on.</h2>
@@ -181,29 +180,29 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
                 ))}
               </div>
             </section>
+          ) : (
+            messages.map((message) => (
+              <article className={`message ${message.role} ${message.knocks ? "has-knocks" : ""}`} key={message.id}>
+                {!message.knocks && message.text && <p>{message.text}</p>}
+                {message.knocks && (
+                  <div className="knock-grid">
+                    {message.knocks.map((knock) => (
+                      <section className="knock-card" key={knock.title}>
+                        <span>{knock.title}</span>
+                        <p>{knock.body}</p>
+                      </section>
+                    ))}
+                  </div>
+                )}
+                {message.source && (
+                  <div className="source-strip">
+                    <span>Referenced</span>
+                    <p>{message.source}</p>
+                  </div>
+                )}
+              </article>
+            ))
           )}
-
-          {messages.map((message) => (
-            <article className={`message ${message.role} ${message.knocks ? "has-knocks" : ""}`} key={message.id}>
-              {!message.knocks && message.text && <p>{message.text}</p>}
-              {message.knocks && (
-                <div className="knock-grid">
-                  {message.knocks.map((knock) => (
-                    <section className="knock-card" key={knock.title}>
-                      <span>{knock.title}</span>
-                      <p>{knock.body}</p>
-                    </section>
-                  ))}
-                </div>
-              )}
-              {message.source && (
-                <div className="source-strip">
-                  <span>Referenced</span>
-                  <p>{message.source}</p>
-                </div>
-              )}
-            </article>
-          ))}
 
           {isSending && (
             <article className="message assistant thinking pipeline-card">
@@ -219,15 +218,6 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
 
         <form className="chat-composer" onSubmit={handleSubmit}>
           <label htmlFor="student-question">Ask a coding question</label>
-          {showPromptSuggestions && (
-            <div className="prompt-rail" aria-label="Suggested questions">
-              {promptSuggestions.map((prompt) => (
-                <button type="button" key={prompt} onClick={() => setDraft(prompt)}>
-                  {prompt}
-                </button>
-              ))}
-            </div>
-          )}
           <div className="composer-row">
             <textarea
               id="student-question"
