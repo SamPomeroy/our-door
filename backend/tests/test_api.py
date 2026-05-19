@@ -55,6 +55,20 @@ def _admin_token():
     return resp.json()["access_token"]
 
 
+def test_separate_sessions_have_independent_knock_counters():
+    # two tokens = two sessions; both should start at knock 0 ("Hint")
+    token_a = _student_token()
+    token_b = _student_token()
+
+    resp_a = client.post("/chat", json={"message": "what is a variable?"}, headers={"Authorization": f"Bearer {token_a}"})
+    resp_b = client.post("/chat", json={"message": "what is a loop?"}, headers={"Authorization": f"Bearer {token_b}"})
+
+    assert resp_a.status_code == 200
+    assert resp_b.status_code == 200
+    assert resp_a.json()["knock"] == "Hint"
+    assert resp_b.json()["knock"] == "Hint"
+
+
 def test_chat_returns_socratic_response():
     token = _student_token()
     resp = client.post(

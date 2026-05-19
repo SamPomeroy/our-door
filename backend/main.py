@@ -15,7 +15,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from auth import get_current_role, router as auth_router
+from auth import get_current_jti, get_current_role, router as auth_router
 
 DB_PATH = "logs.db"
 
@@ -205,9 +205,9 @@ class LogEntry(BaseModel):
 # --- endpoints ---
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat(req: ChatRequest, role: str = Depends(get_current_role)):
-    turn = _turns[role] % 3
-    _turns[role] += 1
+async def chat(req: ChatRequest, role: str = Depends(get_current_role), jti: str = Depends(get_current_jti)):
+    turn = _turns[jti] % 3
+    _turns[jti] += 1
 
     embedding = embed(req.message)
     chunks = query_chroma(embedding)

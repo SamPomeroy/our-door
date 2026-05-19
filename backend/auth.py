@@ -1,4 +1,5 @@
 import os
+import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Literal
 
@@ -36,6 +37,7 @@ class TokenResponse(BaseModel):
 def create_token(role: str) -> str:
     payload = {
         "role": role,
+        "jti": str(uuid.uuid4()),
         "exp": datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
@@ -49,6 +51,18 @@ def get_current_role(
             credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM]
         )
         return payload["role"]
+    except (JWTError, KeyError):
+        raise HTTPException(status_code=401, detail="invalid or expired token")
+
+
+def get_current_jti(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer),
+) -> str:
+    try:
+        payload = jwt.decode(
+            credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM]
+        )
+        return payload["jti"]
     except (JWTError, KeyError):
         raise HTTPException(status_code=401, detail="invalid or expired token")
 
