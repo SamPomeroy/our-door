@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Door Demo Deck</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <canvas id="ambientCanvas" aria-hidden="true"></canvas>
+    <div class="deck">
+      <header class="deck-header">
+        <div class="brand-lockup">
+          <div class="logo-mark" aria-hidden="true">
+            <span></span>
+          </div>
+          <div>
+            <h1>Our Door</h1>
+            <p class="deck-subtitle">Live demo story by Three's Company</p>
+          </div>
+        </div>
+        <div class="slide-pill" id="slideTitle">Problem</div>
+      </header>
+
+      <section class="slides">
+        <article class="slide active" data-title="Problem">
+          <p class="section-label">Problem + User</p>
+          <h2>Getting stuck is not just about the answer.</h2>
+          <p class="lead">
+            Students in technical learning programs get stuck all the time, but the problem is not just not knowing the answer. It is not knowing where to go next.
+          </p>
+          <div class="card-grid three-up">
+            <div class="info-card"><span>Student</span> Needs private guided help in the moment.</div>
+            <div class="info-card"><span>Curriculum</span> Can feel messy or hard to navigate when pressure is high.</div>
+            <div class="info-card"><span>Instructor</span> Needs visibility into where students are getting stuck.</div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Solution">
+          <p class="section-label">Solution + Why AI</p>
+          <h2>A curriculum-aware Socratic assistant.</h2>
+          <p class="lead">
+            Our Door guides students using a three-knocks model instead of giving direct answers.
+          </p>
+          <div class="card-grid three-up">
+            <div class="info-card"><span>Hint</span> A small nudge toward the relevant concept.</div>
+            <div class="info-card"><span>Curriculum reference</span> A pointer back to course material or a learned pattern.</div>
+            <div class="info-card"><span>Next step</span> A concrete action the student can take right now.</div>
+          </div>
+          <p class="plain-note">AI fits because it can retrieve curriculum context and generate guided responses in real time, while guardrails keep responses aligned with the learning philosophy.</p>
+        </article>
+
+        <article class="slide" data-title="Live Demo">
+          <p class="section-label">Live Demo</p>
+          <h2>One workflow. No random clicking.</h2>
+          <div class="demo-layout">
+            <div class="flow-list">
+              <div><span>01</span> Login as student</div>
+              <div><span>02</span> Ask: "I'm confused about JWT tokens. What are they used for?"</div>
+              <div><span>03</span> Show one guided knock response</div>
+              <div><span>04</span> Login as instructor/admin</div>
+              <div><span>05</span> Show the logs dashboard</div>
+            </div>
+            <div class="flow-list">
+              <div><span>Point out</span> Private student help</div>
+              <div><span>Point out</span> Socratic guidance</div>
+              <div><span>Point out</span> Curriculum-aware response</div>
+              <div><span>Point out</span> Instructors can see what students are stuck on and when</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="MVP Scope">
+          <p class="section-label">MVP Scope</p>
+          <h2>Stable core functionality.</h2>
+          <div class="scope-grid">
+            <div class="scope-panel in-scope">
+              <h3>IN</h3>
+              <ul>
+                <li>Curriculum ingestion into vector search</li>
+                <li>Student chat</li>
+                <li>Guided three-knock responses</li>
+                <li>Admin logging dashboard</li>
+                <li>Simple role-based login</li>
+              </ul>
+            </div>
+            <div class="scope-panel out-scope">
+              <h3>OUT</h3>
+              <ul>
+                <li>Advanced analytics</li>
+                <li>Individual accounts</li>
+                <li>Broader multi-cohort support</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide" data-title="Impact">
+          <p class="section-label">Impact</p>
+          <h2>A doorway into understanding.</h2>
+          <p class="lead">
+            Our Door is not just a chatbot. Students get private guided support without simply being given answers, and instructors gain visibility into confusion patterns they may otherwise miss.
+          </p>
+          <div class="card-grid three-up">
+            <div class="info-card"><span>Student impact</span> A safer place to ask and a clearer next step.</div>
+            <div class="info-card"><span>Instructor impact</span> Earlier visibility into repeated confusion.</div>
+            <div class="info-card"><span>Learning impact</span> The goal is not just getting unstuck. It is learning better.</div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="deck-footer">
+        <button id="prevBtn" class="nav-btn">&larr; Previous</button>
+        <div class="deck-progress" aria-hidden="true">
+          <span id="slideCounter">1 / 5</span>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+        <button id="nextBtn" class="nav-btn">Next &rarr;</button>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
