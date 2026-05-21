@@ -113,6 +113,13 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
     }
   }
 
+  function handleComposerKeyDown(event) {
+    if (event.key !== "Enter" || event.shiftKey) return;
+
+    event.preventDefault();
+    event.currentTarget.form?.requestSubmit();
+  }
+
   return (
     <main className={`student-shell theme-${theme}`}>
       <aside className="student-sidebar" aria-label="Student workspace">
@@ -223,6 +230,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
               id="student-question"
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
+              onKeyDown={handleComposerKeyDown}
               placeholder="Example: I keep mixing up parameters and arguments..."
               rows="3"
             />
