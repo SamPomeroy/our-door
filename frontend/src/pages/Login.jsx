@@ -10,6 +10,8 @@ export default function Login({ theme, onLogin, onToggleTheme }) {
   // The same password field can sign in as either app role; the backend decides
   // whether the supplied password is allowed for that role.
   async function handleLogin(role) {
+    if (!password || isLoading) return;
+
     setError("");
     setIsLoading(true);
 
@@ -22,6 +24,13 @@ export default function Login({ theme, onLogin, onToggleTheme }) {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function handlePasswordKeyDown(event) {
+    if (event.key !== "Enter") return;
+
+    event.preventDefault();
+    handleLogin("student");
   }
 
   return (
@@ -44,6 +53,7 @@ export default function Login({ theme, onLogin, onToggleTheme }) {
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
+          onKeyDown={handlePasswordKeyDown}
           placeholder="Enter password"
           autoComplete="current-password"
         />
