@@ -456,6 +456,35 @@ body {
   object-fit: contain;
 }
 
+.demo-screenshot {
+  width: min(100%, 1180px);
+  margin: 24px auto 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.045)),
+    var(--panel);
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.24);
+}
+
+.demo-screenshot img {
+  display: block;
+  width: 100%;
+  max-height: min(50vh, 520px);
+  object-fit: contain;
+  border-radius: 12px;
+  background: #11162d;
+}
+
+.demo-screenshot p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.25vw, 1.2rem);
+  font-weight: 800;
+  text-align: center;
+}
+
 .flow-list {
   display: grid;
   align-content: center;
