@@ -37,18 +37,29 @@ This should be one path. Do not show everything.
 
 ### Student side
 
-1. Login as student.
-2. Ask:
+“Let me show you the student side first.
 
-```text
-I'm confused about JWT tokens. What are they used for?
-```
+When the student logs in, they land here, where they can ask what they’re stuck on. We also added sample prompt chips to help students get started if they don’t know how to phrase their question.
 
-3. Show the AI response: one knock / guided response.
-4. Point out:
-   - private student help
-   - Socratic guidance
-   - curriculum-aware response
+I’m going to use this one: ‘How do I debug a FastAPI route without just guessing?’
+
+This is a good example because the student is not asking for the answer. They’re asking to be guided.
+
+Now when I send this, the question goes to our FastAPI backend. The backend retrieves relevant curriculum context from Chroma, sends that context through the LLM, applies our guardrails, and returns a guided response.
+
+So here, this is the first knock. The student gets a hint instead of a direct solution.
+
+Now I’m going to follow up like a student who is still stuck:
+
+‘I’m still stuck — what should I check first?’
+
+This shows the second knock. The assistant keeps the student moving, but it still does not just hand them the answer.
+
+And for the third knock, I’ll ask:
+
+‘Okay, what would be my next step after that?’
+
+So in this one short workflow, you can see the purpose of Our Door. The student gets private help, one guided knock at a time, and the system supports learning instead of replacing it.”
 
 ### Quick backend explanation
 
