@@ -128,7 +128,7 @@ def embed(text: str) -> list[float]:
 
 def query_chroma(embedding: list[float], n: int = 5) -> list[str]:
     try:
-        client = chromadb.HttpClient(host="localhost", port=8001)
+        client = chromadb.HttpClient(host="chromadb", port=8001)
         collection = client.get_collection("curriculum")
         results = collection.query(query_embeddings=[embedding], n_results=n)
         return results["documents"][0]

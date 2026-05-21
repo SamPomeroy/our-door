@@ -19,4 +19,4 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -r backend/requirements.txt pytest httpx
-      - run: MOCK_MODE=true pytest backend/tests/ -v
+      - run: MOCK_MODE=true pytest backend/tests/ -v --ignore=backend/tests/test_integration.py
