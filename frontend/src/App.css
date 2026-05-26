@@ -59,10 +59,14 @@
   font-weight: 700;
 }
 
+.password-field {
+  position: relative;
+}
+
 .password-input {
   width: 100%;
   min-height: 46px;
-  padding: 10px 12px;
+  padding: 10px 48px 10px 12px;
   border: 1px solid rgba(31, 24, 36, 0.14);
   border-radius: 14px;
   color: #17131f;
@@ -72,6 +76,44 @@
 .password-input:focus {
   border-color: #d29b42;
   outline: 3px solid rgba(210, 155, 66, 0.2);
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  color: #6f6878;
+  background: transparent;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+  transform: translateY(-50%);
+}
+
+.password-toggle:hover {
+  color: #17131f;
+  background: rgba(31, 24, 36, 0.08);
+}
+
+.password-toggle:focus-visible {
+  outline: 3px solid rgba(210, 155, 66, 0.22);
+}
+
+.password-icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
 }
 
 .role-actions {
@@ -866,6 +908,15 @@
 .theme-dark .composer-row textarea::placeholder,
 .theme-dark .admin-toolbar input::placeholder {
   color: rgba(243, 234, 247, 0.48);
+}
+
+.theme-dark .password-toggle {
+  color: #d9cae0;
+}
+
+.theme-dark .password-toggle:hover {
+  color: #f5edf8;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .theme-dark .password-input:focus,
