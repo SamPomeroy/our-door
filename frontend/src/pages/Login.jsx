@@ -22,7 +22,7 @@ export default function Login({ theme, onLogin, onToggleTheme }) {
       setIsDoorOpen(true);
       window.setTimeout(() => {
         onLogin?.({ token: response.access_token, role: response.role ?? role });
-      }, 520);
+      }, 850);
     } catch (err) {
       console.error(err);
       setIsDoorOpen(false);

@@ -73,7 +73,7 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme 
 
   function handleSignOut() {
     setIsDoorOpen(false);
-    window.setTimeout(() => onSignOut(), 520);
+    window.setTimeout(() => onSignOut(), 850);
   }
 
   return (

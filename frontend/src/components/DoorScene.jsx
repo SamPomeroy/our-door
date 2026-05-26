@@ -65,11 +65,11 @@ function DoorModel({ open = false, interactive = false, pulse = 0 }) {
     if (!doorRef.current) return;
 
     const knock = Math.sin(state.clock.elapsedTime * 18) * pulse * 0.05;
-    const targetRotation = open ? -1.34 : knock;
-    doorRef.current.rotation.y += (targetRotation - doorRef.current.rotation.y) * 0.07;
+    const targetRotation = open ? -1.72 : knock;
+    doorRef.current.rotation.y += (targetRotation - doorRef.current.rotation.y) * 0.09;
 
     if (glowRef.current) {
-      const targetOpacity = open ? 0.2 : 0.045 + pulse * 0.05;
+      const targetOpacity = open ? 0.26 : 0.045 + pulse * 0.05;
       glowRef.current.material.opacity += (targetOpacity - glowRef.current.material.opacity) * 0.08;
     }
   });

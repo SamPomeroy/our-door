@@ -123,7 +123,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
 
   function handleSignOut() {
     setIsDoorOpen(false);
-    window.setTimeout(() => onSignOut(), 520);
+    window.setTimeout(() => onSignOut(), 850);
   }
 
   return (
