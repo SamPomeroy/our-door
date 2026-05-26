@@ -172,7 +172,7 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme 
               <article className="admin-log-card" key={log.id}>
                 <div className="log-card-header">
                   <div>
-                    <span>{log.topic || "General question"}</span>
+                    <span>{log.question || log.topic || "General question"}</span>
                     <time dateTime={log.timestamp}>{formatTimestamp(log.timestamp)}</time>
                   </div>
                   <strong>#{log.id}</strong>
