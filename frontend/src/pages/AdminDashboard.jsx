@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { getLogs } from "../api.js";
-import logo from "../assets/our_door_logo.png";
+import DoorScene from "../components/DoorScene.jsx";
 
 export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme }) {
   const [logs, setLogs] = useState([]);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isDoorOpen, setIsDoorOpen] = useState(true);
 
   async function loadLogs() {
     setError("");
@@ -70,11 +71,18 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme 
     }).format(new Date(value));
   }
 
+  function handleSignOut() {
+    setIsDoorOpen(false);
+    window.setTimeout(() => onSignOut(), 520);
+  }
+
   return (
     <main className={`admin-shell theme-${theme}`}>
       <aside className="student-sidebar" aria-label="Admin workspace">
         <div className="brand-lockup">
-          <img src={logo} alt="" />
+          <div className="sidebar-door-scene" aria-hidden="true">
+            <DoorScene compact open={isDoorOpen} pulse={0.25} />
+          </div>
           <div>
             <p>Our Door</p>
             <span>Admin review</span>
@@ -101,7 +109,7 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme 
           <p>Use the logs to spot where students are getting stuck and where support may need to happen next.</p>
         </div>
 
-        <button className="ghost-button" type="button" onClick={onSignOut}>
+        <button className="ghost-button" type="button" onClick={handleSignOut}>
           Sign out
         </button>
       </aside>

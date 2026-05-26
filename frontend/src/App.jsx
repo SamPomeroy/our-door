@@ -9,12 +9,20 @@ function App() {
   const [theme, setTheme] = useState("dark");
   const toggleTheme = () => setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
 
+  function handleLogin(nextSession) {
+    setSession(nextSession);
+  }
+
+  function handleSignOut() {
+    setSession(null);
+  }
+
   if (session?.role === "student") {
     return (
       <StudentChat
         token={session.token}
         theme={theme}
-        onSignOut={() => setSession(null)}
+        onSignOut={handleSignOut}
         onToggleTheme={toggleTheme}
       />
     );
@@ -25,13 +33,13 @@ function App() {
       <AdminDashboard
         token={session.token}
         theme={theme}
-        onSignOut={() => setSession(null)}
+        onSignOut={handleSignOut}
         onToggleTheme={toggleTheme}
       />
     );
   }
 
-  return <Login theme={theme} onLogin={(nextSession) => setSession(nextSession)} onToggleTheme={toggleTheme} />;
+  return <Login theme={theme} onLogin={handleLogin} onToggleTheme={toggleTheme} />;
 }
 
 export default App;

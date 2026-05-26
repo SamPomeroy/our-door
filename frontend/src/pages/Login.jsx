@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { login } from "../api.js";
-import logo from "../assets/our_door_logo.png";
+import DoorScene from "../components/DoorScene.jsx";
 
 export default function Login({ theme, onLogin, onToggleTheme }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isDoorOpen, setIsDoorOpen] = useState(false);
 
   // The same password field can sign in as either app role; the backend decides
   // whether the supplied password is allowed for that role.
@@ -18,11 +19,14 @@ export default function Login({ theme, onLogin, onToggleTheme }) {
 
     try {
       const response = await login(password, role);
-      onLogin?.({ token: response.access_token, role: response.role ?? role });
+      setIsDoorOpen(true);
+      window.setTimeout(() => {
+        onLogin?.({ token: response.access_token, role: response.role ?? role });
+      }, 520);
     } catch (err) {
       console.error(err);
+      setIsDoorOpen(false);
       setError("Login failed. Check the password and try again.");
-    } finally {
       setIsLoading(false);
     }
   }
@@ -41,7 +45,9 @@ export default function Login({ theme, onLogin, onToggleTheme }) {
           <span className={`theme-icon ${theme === "dark" ? "sun" : "moon"}`} aria-hidden="true" />
           <span className="sr-only">{theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}</span>
         </button>
-        <img className="login-logo" src={logo} alt="" />
+        <div className="login-door-scene" aria-hidden="true">
+          <DoorScene compact interactive open={isDoorOpen} pulse={isLoading ? 0.8 : 0.35} />
+        </div>
         <p className="login-kicker">Our Door</p>
         <h1 id="login-heading">Sign in</h1>
 
