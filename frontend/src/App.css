@@ -802,6 +802,7 @@
 
 .admin-log-card,
 .admin-empty {
+  min-width: 0;
   border-radius: 20px;
   padding: 16px;
   animation: message-enter 280ms ease both;
@@ -816,9 +817,15 @@
   border-bottom: 1px solid rgba(31, 24, 36, 0.1);
 }
 
+.log-card-header > div {
+  min-width: 0;
+}
+
 .log-card-header span,
 .admin-empty span {
   display: block;
+  overflow-wrap: anywhere;
+  white-space: normal;
   color: #7d5d1f;
   font-size: 12px;
   font-weight: 900;
@@ -828,6 +835,7 @@
 
 .log-card-header time,
 .log-card-header strong {
+  flex: 0 0 auto;
   color: #6f6878;
   font-size: 13px;
   font-weight: 800;
@@ -838,6 +846,10 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin: 14px 0 0;
+}
+
+.admin-log-card dl > div {
+  min-width: 0;
 }
 
 .admin-log-card dt {
@@ -852,6 +864,8 @@
   margin: 0;
   color: #3b3444;
   font-size: 14px;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .admin-empty p {
