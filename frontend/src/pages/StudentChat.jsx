@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { sendMessage } from "../api.js";
-import logo from "../assets/our_door_logo.png";
+import DoorScene from "../components/DoorScene.jsx";
 import { logger } from "../utils/logger.js";
 
 const starterMessages = [];
@@ -47,6 +47,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
   const [error, setError] = useState("");
   const [chatStatus, setChatStatus] = useState("empty");
   const [activeGuide, setActiveGuide] = useState(toolGuides[0]);
+  const [isDoorOpen, setIsDoorOpen] = useState(true);
 
   const isEmpty = messages.length === 0;
   const statusText = {
@@ -120,11 +121,18 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
     event.currentTarget.form?.requestSubmit();
   }
 
+  function handleSignOut() {
+    setIsDoorOpen(false);
+    window.setTimeout(() => onSignOut(), 850);
+  }
+
   return (
     <main className={`student-shell theme-${theme}`}>
       <aside className="student-sidebar" aria-label="Student workspace">
         <div className="brand-lockup">
-          <img src={logo} alt="" />
+          <div className="sidebar-door-scene" aria-hidden="true">
+            <DoorScene compact open={isDoorOpen} pulse={0.25} />
+          </div>
           <div>
             <p>Our Door</p>
             <span>Private Socratic support</span>
@@ -150,7 +158,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
           <p>{activeGuide.body}</p>
         </div>
 
-        <button className="ghost-button" type="button" onClick={onSignOut}>
+        <button className="ghost-button" type="button" onClick={handleSignOut}>
           Sign out
         </button>
       </aside>
