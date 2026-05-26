@@ -6,6 +6,20 @@
 
 ---
 
+## 0. Prerequisites
+
+`jq` is used throughout for readable JSON output. Install it if you don't have it:
+
+```bash
+# linux / WSL
+sudo apt-get install -y jq
+
+# mac
+brew install jq
+```
+
+---
+
 ## 1. Start the stack
 
 ```bash
