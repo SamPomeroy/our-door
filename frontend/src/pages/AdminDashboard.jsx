@@ -1,10 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { getLogs } from "../api.js";
+import ActivityFeed from "../components/admin/ActivityFeed.jsx";
+import BarList from "../components/admin/BarList.jsx";
+import ConfusionQueue from "../components/admin/ConfusionQueue.jsx";
+import KnockUsageCard from "../components/admin/KnockUsageCard.jsx";
+import LogReviewPanel from "../components/admin/LogReviewPanel.jsx";
+import MetricCard from "../components/admin/MetricCard.jsx";
 import DoorScene from "../components/DoorScene.jsx";
+import { buildAnalytics, mockAnalyticsLogs, normalizeLog } from "../data/adminAnalytics.js";
 
 export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme }) {
   const [logs, setLogs] = useState([]);
   const [query, setQuery] = useState("");
+  const [severityFilter, setSeverityFilter] = useState("all");
+  const [topicFilter, setTopicFilter] = useState("all");
+  const [expandedLogId, setExpandedLogId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isDoorOpen, setIsDoorOpen] = useState(true);
@@ -44,21 +54,40 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme 
     };
   }, [token]);
 
-  // Search checks the fields an instructor is most likely to scan while looking
-  // for repeated stuck points across the cohort.
+  const dashboardLogs = logs.length > 0 ? logs : mockAnalyticsLogs;
+  const isUsingSampleData = logs.length === 0 && !isLoading;
+
+  const normalizedLogs = useMemo(
+    () => dashboardLogs.map((log, index) => normalizeLog(log, index)),
+    [dashboardLogs]
+  );
+
+  const analytics = useMemo(() => buildAnalytics(dashboardLogs), [dashboardLogs]);
+
+  const topics = useMemo(
+    () => [...new Set(normalizedLogs.map((log) => log.topic).filter(Boolean))].sort(),
+    [normalizedLogs]
+  );
+
   const filteredLogs = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return logs;
 
-    return logs.filter((log) =>
-      [log.topic, log.question, log.response]
-        .filter(Boolean)
-        .some((value) => value.toLowerCase().includes(normalizedQuery))
-    );
-  }, [logs, query]);
+    return normalizedLogs.filter((log) => {
+      const matchesQuery =
+        !normalizedQuery ||
+        [log.student, log.topic, log.question, log.response]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(normalizedQuery));
 
-  const latestLog = logs[0];
-  const topicCount = new Set(logs.map((log) => log.topic).filter(Boolean)).size;
+      const matchesSeverity = severityFilter === "all" || log.severity === severityFilter;
+      const matchesTopic = topicFilter === "all" || log.topic === topicFilter;
+
+      return matchesQuery && matchesSeverity && matchesTopic;
+    });
+  }, [normalizedLogs, query, severityFilter, topicFilter]);
+
+  const latestLog = normalizedLogs[0];
+  const topicCount = topics.length;
 
   function formatTimestamp(value) {
     if (!value) return "Unknown time";
@@ -74,6 +103,10 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme 
   function handleSignOut() {
     setIsDoorOpen(false);
     window.setTimeout(() => onSignOut(), 850);
+  }
+
+  function handleToggleLog(logId) {
+    setExpandedLogId((currentLogId) => (currentLogId === logId ? null : logId));
   }
 
   return (
@@ -117,12 +150,12 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme 
       <section className="admin-stage" aria-labelledby="admin-heading">
         <header className="chat-header">
           <div>
-            <p className="eyebrow">Admin dashboard</p>
-            <h1 id="admin-heading">Conversation logs</h1>
+            <p className="eyebrow">Instructor insights</p>
+            <h1 id="admin-heading">Cohort signal room</h1>
           </div>
           <div className="status-pill">
             <span aria-hidden="true" />
-            Logs ready
+            {isUsingSampleData ? "Sample analytics" : "Logs ready"}
           </div>
           <button className="theme-toggle" type="button" onClick={onToggleTheme}>
             <span className={`theme-icon ${theme === "dark" ? "sun" : "moon"}`} aria-hidden="true" />
@@ -130,25 +163,14 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme 
           </button>
         </header>
 
-        <div className="admin-toolbar">
-          <label htmlFor="log-search">Search logs</label>
-          <div>
-            <input
-              id="log-search"
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search topic, question, or response"
-            />
-            <button type="button" onClick={loadLogs} disabled={isLoading}>
-              {isLoading ? "Refreshing" : "Refresh"}
-            </button>
-          </div>
-        </div>
-
         {error && <p className="admin-error">{error}</p>}
+        {isUsingSampleData && (
+          <p className="admin-sample-note">
+            Showing sample analytics until live student logs are available from the backend.
+          </p>
+        )}
 
-        <div className="admin-log-list" aria-live="polite">
+        <div className="admin-dashboard-scroll">
           {isLoading && (
             <article className="message assistant thinking pipeline-card">
               <div className="heartbeat" aria-hidden="true">
@@ -160,35 +182,72 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme 
             </article>
           )}
 
-          {!isLoading && filteredLogs.length === 0 && (
-            <article className="admin-empty">
-              <span>No logs found</span>
-              <p>{query ? "Try a different search term." : "Student conversations will appear here once they are logged."}</p>
-            </article>
-          )}
+          {!isLoading && (
+            <>
+              <section className="metric-grid" aria-label="Cohort analytics">
+                {analytics.metrics.map((metric) => (
+                  <MetricCard key={metric.label} {...metric} />
+                ))}
+              </section>
 
-          {!isLoading &&
-            filteredLogs.map((log) => (
-              <article className="admin-log-card" key={log.id}>
-                <div className="log-card-header">
-                  <div>
-                    <span>{log.question || log.topic || "General question"}</span>
-                    <time dateTime={log.timestamp}>{formatTimestamp(log.timestamp)}</time>
+              <section className="analytics-grid" aria-label="Dashboard charts">
+                <BarList
+                  title="Questions by topic"
+                  subtitle="Curriculum hotspots"
+                  items={analytics.topicBars}
+                />
+                <BarList
+                  title="Student frustration"
+                  subtitle="Severity trend"
+                  items={analytics.severityBars}
+                />
+                <BarList
+                  title="Weekly usage"
+                  subtitle="Activity"
+                  items={analytics.usageBars}
+                />
+                <KnockUsageCard items={analytics.knockUsage} />
+              </section>
+
+              <section className="analytics-grid lower" aria-label="Instructor review signals">
+                <ActivityFeed items={analytics.activity} formatTimestamp={formatTimestamp} />
+                <ConfusionQueue items={analytics.confusionQueue} />
+                <section className="insight-panel repeated-panel">
+                  <div className="panel-heading">
+                    <div>
+                      <span>Pattern detection</span>
+                      <h2>Repeated questions</h2>
+                    </div>
                   </div>
-                  <strong>#{log.id}</strong>
-                </div>
-                <dl>
-                  <div>
-                    <dt>Student asked</dt>
-                    <dd>{log.question}</dd>
+                  <div className="repeated-list">
+                    {analytics.repeatedQuestions.map((item) => (
+                      <article key={item.topic}>
+                        <strong>{item.topic}</strong>
+                        <span>{item.count} similar questions</span>
+                        <p>{item.summary}</p>
+                      </article>
+                    ))}
                   </div>
-                  <div>
-                    <dt>Our Door answered</dt>
-                    <dd>{log.response}</dd>
-                  </div>
-                </dl>
-              </article>
-            ))}
+                </section>
+              </section>
+
+              <LogReviewPanel
+                logs={filteredLogs}
+                query={query}
+                severity={severityFilter}
+                topic={topicFilter}
+                topics={topics}
+                expandedLogId={expandedLogId}
+                isLoading={isLoading}
+                onQueryChange={setQuery}
+                onSeverityChange={setSeverityFilter}
+                onTopicChange={setTopicFilter}
+                onRefresh={loadLogs}
+                onToggleLog={handleToggleLog}
+                formatTimestamp={formatTimestamp}
+              />
+            </>
+          )}
         </div>
       </section>
     </main>
