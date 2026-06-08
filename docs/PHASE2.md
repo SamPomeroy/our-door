@@ -2,28 +2,37 @@
 
 ## Features
 
-### Feature 1: Student frustration detection
-When a student asks the same or semantically similar question multiple times in a session,
-the system detects the pattern and shifts from Hint mode to a more scaffolded response —
-closer to a worked example without giving a direct answer. Targets students who are stuck,
-not just cycling through the knock progression.
+### Feature 1: Corpus metadata + file upload
+Store source metadata (filename, topic, chunk index) with every chunk at ingest time.
+Add an admin UI for uploading PDF and CSV files so instructors can expand the corpus
+without touching the codebase. Uploaded files are chunked, embedded, and pushed to
+Chroma with full metadata. Fixes the broken `topic` field in conversation logs.
 
-### Feature 2: Retrieval reranking
-Replace the current top-5 Chroma results with a reranking pass (MMR or cross-encoder)
-so repeated or similar queries return diverse chunks instead of the same hits every time.
+### Feature 2: Student-selected response type + feedback
+Replace the automatic Three Knocks turn counter with explicit student choice.
+After submitting a question, the student selects the kind of help they want:
+Hint, Curriculum Reference, or Next Step. After receiving a response, they can
+rate it with a thumbs up or thumbs down. Feedback is stored and surfaced in the
+admin dashboard. Eliminates the topic-switching problem with the current progression
+and gives instructors a measurable signal on response quality.
+
+### Feature 3: Retrieval reranking
+Replace the current top-5 Chroma results with an MMR reranking pass so repeated
+or topic-shifted queries return diverse chunks instead of the same hits every time.
 Improves response quality as the corpus grows.
 
 ## Improvement Area
 
-UX — both features address places where the system currently fails the student. Frustration
-detection responds to the student's actual state, not just their turn count. Better retrieval
-means more relevant responses, which students feel immediately.
+UX and evaluation — student-selected response type removes the mismatch between
+what a student needs and what the system delivers. Thumbs up/down feedback creates
+a measurable helpfulness rate per response type, giving instructors a real signal
+on where the system is working and where it isn't.
 
-## Rough Timeline
+## Timeline
 
-| Week | Goal |
-|------|------|
-| W37 | Frustration detection: session similarity scoring, tone-shift prompt |
-| W38 | Retrieval reranking: MMR implementation, A/B comparison against current |
-| W39 | Integration, edge case testing, corpus expansion |
-| W40 | Final polish, evaluation write-up, MVP showcase prep |
+| Dates | Goal |
+|-------|------|
+| Jun 8–11  | Metadata at ingest (Ricky); knock redesign backend (Sam) |
+| Jun 11–15 | File upload backend + UI (Sam + Andrea); knock UI (Andrea) |
+| Jun 15–18 | Retrieval reranking (Sam); integration + feedback dashboard |
+| Jun 18–21 | Polish, edge cases, showcase prep |
