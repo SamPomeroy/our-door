@@ -64,7 +64,7 @@ def test_insert_and_fetch_logs(tmp_path, monkeypatch):
     main.init_db()
 
     # insert a log entry
-    main.insert_log("how do i write a list?", "what have you tried so far?")
+    main.insert_log("how do i write a list?", "what have you tried so far?", "hint")
 
     # fetch and verify
     logs = main.fetch_logs()
@@ -80,8 +80,8 @@ def test_fetch_logs_returns_newest_first(tmp_path, monkeypatch):
     monkeypatch.setattr(main, "DB_PATH", db)
     main.init_db()
 
-    main.insert_log("first question", "first response")
-    main.insert_log("second question", "second response")
+    main.insert_log("first question", "first response", "hint")
+    main.insert_log("second question", "second response", "curriculum")
 
     logs = main.fetch_logs()
     assert len(logs) == 2
