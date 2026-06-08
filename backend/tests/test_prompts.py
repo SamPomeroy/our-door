@@ -16,26 +16,26 @@ def test_knock_prompts_has_three_entries():
 
 def test_knock_labels_match_prompts():
     assert len(KNOCK_LABELS) == len(KNOCK_PROMPTS)
-    assert KNOCK_LABELS == ["Hint", "Curriculum reference", "Next step"]
+    assert set(KNOCK_LABELS.keys()) == set(KNOCK_PROMPTS.keys())
 
 
 def test_each_knock_prompt_prohibits_direct_answers():
-    for prompt in KNOCK_PROMPTS:
+    for prompt in KNOCK_PROMPTS.values():
         lower = prompt.lower()
         assert "not" in lower or "no " in lower or "never" in lower or "do not" in lower, \
             f"each knock prompt must prohibit direct answers: {prompt[:60]}"
 
 
 def test_hint_prompt_focuses_on_hint():
-    assert "HINT" in KNOCK_PROMPTS[0].upper()
+    assert "HINT" in KNOCK_PROMPTS["hint"].upper()
 
 
 def test_curriculum_prompt_focuses_on_curriculum():
-    assert "CURRICULUM" in KNOCK_PROMPTS[1].upper()
+    assert "CURRICULUM" in KNOCK_PROMPTS["curriculum"].upper()
 
 
 def test_next_step_prompt_focuses_on_next_step():
-    assert "NEXT STEP" in KNOCK_PROMPTS[2].upper()
+    assert "NEXT STEP" in KNOCK_PROMPTS["next_step"].upper()
 
 
 def test_strict_fallback_exists_and_substantive():

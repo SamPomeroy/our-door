@@ -55,18 +55,58 @@ def _admin_token():
     return resp.json()["access_token"]
 
 
-def test_separate_sessions_have_independent_knock_counters():
-    # two tokens = two sessions; both should start at knock 0 ("Hint")
-    token_a = _student_token()
-    token_b = _student_token()
+def test_knock_type_defaults_to_hint():
+    token = _student_token()
+    resp = client.post("/chat", json={"message": "what is a variable?"}, headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.json()["knock"] == "Hint"
 
-    resp_a = client.post("/chat", json={"message": "what is a variable?"}, headers={"Authorization": f"Bearer {token_a}"})
-    resp_b = client.post("/chat", json={"message": "what is a loop?"}, headers={"Authorization": f"Bearer {token_b}"})
 
-    assert resp_a.status_code == 200
-    assert resp_b.status_code == 200
-    assert resp_a.json()["knock"] == "Hint"
-    assert resp_b.json()["knock"] == "Hint"
+def test_knock_type_curriculum_returns_curriculum_reference():
+    token = _student_token()
+    resp = client.post("/chat", json={"message": "what is scope?", "knock_type": "curriculum"}, headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.json()["knock"] == "Curriculum reference"
+
+
+def test_knock_type_next_step_returns_next_step():
+    token = _student_token()
+    resp = client.post("/chat", json={"message": "what is scope?", "knock_type": "next_step"}, headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.json()["knock"] == "Next step"
+
+
+def test_invalid_knock_type_falls_back_to_hint():
+    token = _student_token()
+    resp = client.post("/chat", json={"message": "what is scope?", "knock_type": "garbage"}, headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.json()["knock"] == "Hint"
+
+
+def test_chat_response_includes_log_id():
+    token = _student_token()
+    resp = client.post("/chat", json={"message": "what is a loop?"}, headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert "log_id" in resp.json()
+    assert isinstance(resp.json()["log_id"], int)
+
+
+def test_feedback_thumbs_up():
+    token = _student_token()
+    chat_resp = client.post("/chat", json={"message": "what is a list?"}, headers={"Authorization": f"Bearer {token}"})
+    log_id = chat_resp.json()["log_id"]
+    resp = client.post("/feedback", json={"log_id": log_id, "helpful": True}, headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.json()["ok"] is True
+
+
+def test_feedback_thumbs_down():
+    token = _student_token()
+    chat_resp = client.post("/chat", json={"message": "what is a dict?"}, headers={"Authorization": f"Bearer {token}"})
+    log_id = chat_resp.json()["log_id"]
+    resp = client.post("/feedback", json={"log_id": log_id, "helpful": False}, headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.json()["ok"] is True
 
 
 def test_chat_returns_socratic_response():
