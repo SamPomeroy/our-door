@@ -1,3 +1,4 @@
+import hashlib
 import os
 import sqlite3
 from collections import defaultdict
@@ -119,11 +120,19 @@ def fetch_logs() -> list[dict]:
 
 # --- rag helpers ---
 
+_embed_cache: dict[str, list[float]] = {}
+
 def embed(text: str) -> list[float]:
+    key = hashlib.md5(text.encode()).hexdigest()
+    if key in _embed_cache:
+        return _embed_cache[key]
     if MOCK_MODE:
-        return [0.0] * 1536  # fake embedding, same dimension as text-embedding-3-small
-    resp = oai.embeddings.create(model="text-embedding-3-small", input=text)
-    return resp.data[0].embedding
+        result = [0.0] * 1536
+    else:
+        resp = oai.embeddings.create(model="text-embedding-3-small", input=text)
+        result = resp.data[0].embedding
+    _embed_cache[key] = result
+    return result
 
 
 def query_chroma(embedding: list[float], n: int = 5) -> list[str]:
