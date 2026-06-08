@@ -122,6 +122,7 @@ def fetch_logs() -> list[dict]:
 
 _embed_cache: dict[str, list[float]] = {}
 
+
 def embed(text: str) -> list[float]:
     key = hashlib.md5(text.encode()).hexdigest()
     if key in _embed_cache:
