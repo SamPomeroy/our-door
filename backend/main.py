@@ -74,6 +74,7 @@ GUARDRAIL_PROMPT = (
 
 # --- db helpers ---
 
+
 def init_db() -> None:
     conn = sqlite3.connect(DB_PATH)
     conn.execute(
