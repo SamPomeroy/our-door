@@ -9,10 +9,19 @@ export async function login(password, role) {
   return data;
 }
 
-export async function sendMessage(message, token) {
+export async function sendMessage(message, token, knockType = "hint") {
   const { data } = await api.post(
     "/chat",
-    { message },
+    { message, knock_type: knockType },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return data;
+}
+
+export async function sendFeedback(logId, helpful, token) {
+  const { data } = await api.post(
+    "/feedback",
+    { log_id: logId, helpful },
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return data;

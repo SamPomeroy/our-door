@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { sendMessage } from "../api.js";
+import { sendFeedback, sendMessage } from "../api.js";
 import DoorScene from "../components/DoorScene.jsx";
 import { logger } from "../utils/logger.js";
 
@@ -18,19 +18,19 @@ const toolGuides = [
     id: "ask",
     label: "Ask",
     title: "Ask Our Door",
-    body: "Bring the exact spot where you are stuck. Our Door answers with one useful nudge at a time instead of handing over the solution.",
+    body: "Step into a private space to ask any cohort question, especially the one you are not ready to ask out loud yet.",
   },
   {
     id: "curriculum",
-    label: "Curriculum",
-    title: "Curriculum link",
-    body: "Use this to connect the question back to cohort material, notes, or a concept you have already seen.",
+    label: "Reference",
+    title: "Curriculum reference",
+    body: "Choose Reference when you want the answer tied back to cohort material, notes, or a concept you have already practiced.",
   },
   {
     id: "knocks",
-    label: "Three knocks",
+    label: "Knocks",
     title: "Three knocks",
-    body: "Knock one is a hint. Knock two points to the right curriculum. Knock three gives the next step or question.",
+    body: "After writing your question, choose the kind of support you need: a hint, a curriculum reference, or a next step.",
   },
 ];
 
@@ -40,10 +40,39 @@ const knockTitles = {
   "Next step": "Knock 3 - Next Step",
 };
 
+const knockOptions = [
+  { value: "hint", label: "Hint" },
+  { value: "curriculum", label: "Reference" },
+  { value: "next_step", label: "Next Step" },
+];
+
+function ThumbIcon({ direction }) {
+  return (
+    <svg
+      className={`feedback-icon feedback-icon-${direction}`}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Z" />
+      <path d="M7 10l5-8c1.4.3 2.2 1.6 1.8 3l-.7 3H19a3 3 0 0 1 2.9 3.7l-1.2 5A4 4 0 0 1 16.8 20H7V10Z" />
+    </svg>
+  );
+}
+
+function handleButtonEnter(event, action) {
+  if (event.key !== "Enter" && event.code !== "NumpadEnter") return;
+  if (event.repeat) return;
+
+  event.preventDefault();
+  action();
+}
+
 export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) {
   const [messages, setMessages] = useState(starterMessages);
   const [draft, setDraft] = useState("");
+  const [knockType, setKnockType] = useState("hint");
   const [isSending, setIsSending] = useState(false);
+  const [feedbackStatus, setFeedbackStatus] = useState({});
   const [error, setError] = useState("");
   const [chatStatus, setChatStatus] = useState("empty");
   const [activeGuide, setActiveGuide] = useState(toolGuides[0]);
@@ -84,7 +113,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
     setChatStatus("loading");
 
     try {
-      const response = await sendMessage(nextMessage, token);
+      const response = await sendMessage(nextMessage, token, knockType);
       const assistantText =
         response.response ??
         response.message ??
@@ -99,6 +128,8 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
           id: crypto.randomUUID(),
           role: "assistant",
           text: assistantText,
+          logId: response.log_id,
+          feedback: null,
           knocks: response.knock ? [{ title: getKnockTitle(response.knock), body: assistantText }] : null,
         },
       ]);
@@ -111,6 +142,25 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
     } finally {
       setIsSending(false);
       logger.debug("StudentChat", "Loading finished");
+    }
+  }
+
+  async function handleFeedback(messageId, logId, helpful) {
+    if (!logId || feedbackStatus[messageId] === "sending") return;
+
+    setFeedbackStatus((currentStatus) => ({ ...currentStatus, [messageId]: "sending" }));
+
+    try {
+      await sendFeedback(logId, helpful, token);
+      setMessages((currentMessages) =>
+        currentMessages.map((message) =>
+          message.id === messageId ? { ...message, feedback: helpful } : message
+        )
+      );
+      setFeedbackStatus((currentStatus) => ({ ...currentStatus, [messageId]: "saved" }));
+    } catch (err) {
+      logger.error("StudentChat", "Feedback request failed", { status: err?.response?.status });
+      setFeedbackStatus((currentStatus) => ({ ...currentStatus, [messageId]: "error" }));
     }
   }
 
@@ -146,6 +196,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
               key={guide.id}
               type="button"
               onClick={() => setActiveGuide(guide)}
+              onKeyDown={(event) => handleButtonEnter(event, () => setActiveGuide(guide))}
               aria-pressed={activeGuide.id === guide.id}
             >
               {guide.label}
@@ -183,9 +234,9 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
           {isEmpty ? (
             <section className="chat-empty-state">
               <span>Welcome to Our Door</span>
-              <h2>Ask what you are stuck on.</h2>
+              <h2>Start with a cohort question.</h2>
               <p>
-                Share the smallest piece of the problem you can name. Our Door will answer with one guided knock at a time.
+                Try one of these examples, then choose the kind of knock you want: a hint, a reference, or a next step.
               </p>
               <div className="prompt-rail" aria-label="Suggested questions">
                 {promptSuggestions.map((prompt) => (
@@ -207,6 +258,36 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
                         <p>{knock.body}</p>
                       </section>
                     ))}
+                  </div>
+                )}
+                {message.role === "assistant" && message.logId && (
+                  <div className="response-feedback" aria-label="Response feedback">
+                    <button
+                      type="button"
+                      className={message.feedback === true ? "is-selected" : ""}
+                      disabled={feedbackStatus[message.id] === "sending"}
+                      onClick={() => handleFeedback(message.id, message.logId, true)}
+                      onKeyDown={(event) => handleButtonEnter(event, () => handleFeedback(message.id, message.logId, true))}
+                      aria-pressed={message.feedback === true}
+                      title="Helpful"
+                    >
+                      <ThumbIcon direction="up" />
+                      <span className="sr-only">Helpful</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={message.feedback === false ? "is-selected" : ""}
+                      disabled={feedbackStatus[message.id] === "sending"}
+                      onClick={() => handleFeedback(message.id, message.logId, false)}
+                      onKeyDown={(event) => handleButtonEnter(event, () => handleFeedback(message.id, message.logId, false))}
+                      aria-pressed={message.feedback === false}
+                      title="Not helpful"
+                    >
+                      <ThumbIcon direction="down" />
+                      <span className="sr-only">Not helpful</span>
+                    </button>
+                    {feedbackStatus[message.id] === "saved" && <span aria-live="polite">Saved</span>}
+                    {feedbackStatus[message.id] === "error" && <span aria-live="polite">Try again</span>}
                   </div>
                 )}
                 {message.source && (
@@ -242,9 +323,30 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
               placeholder="Example: I keep mixing up parameters and arguments..."
               rows="3"
             />
-            <button type="submit" disabled={!draft.trim() || isSending}>
+            <button
+              type="submit"
+              disabled={!draft.trim() || isSending}
+              onKeyDown={(event) => handleButtonEnter(event, () => event.currentTarget.form?.requestSubmit())}
+            >
               Send
             </button>
+          </div>
+          <div className="composer-meta">
+            <span>Choose your knock</span>
+            <div className="knock-selector" aria-label="Knock type">
+              {knockOptions.map((option) => (
+                <button
+                  type="button"
+                  key={option.value}
+                  className={knockType === option.value ? "is-active" : ""}
+                  onClick={() => setKnockType(option.value)}
+                  onKeyDown={(event) => handleButtonEnter(event, () => setKnockType(option.value))}
+                  aria-pressed={knockType === option.value}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
           </div>
           {error && <p className="composer-error">{error}</p>}
         </form>
