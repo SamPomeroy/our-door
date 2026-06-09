@@ -13,6 +13,20 @@ export default function LogReviewPanel({
   onToggleLog,
   formatTimestamp,
 }) {
+  function formatKnockType(value) {
+    return {
+      hint: "Hint",
+      curriculum: "Curriculum Reference",
+      next_step: "Next Step",
+    }[value] ?? value ?? "Hint";
+  }
+
+  function formatHelpful(value) {
+    if (value === true || value === 1) return "Helpful";
+    if (value === false || value === 0) return "Not helpful";
+    return "No feedback";
+  }
+
   return (
     <section className="log-review-panel" aria-labelledby="log-review-heading">
       <div className="panel-heading">
@@ -80,6 +94,10 @@ export default function LogReviewPanel({
                 </div>
                 <div className="log-badge-row">
                   <em>{log.topic}</em>
+                  <em>{formatKnockType(log.knock_type)}</em>
+                  <em className={`feedback-badge feedback-${formatHelpful(log.helpful).toLowerCase().replaceAll(" ", "-")}`}>
+                    {formatHelpful(log.helpful)}
+                  </em>
                   <em className={`severity-badge severity-${log.severity}`}>{log.severity}</em>
                   {log.knocksUsed >= 3 && <em>stuck</em>}
                   {log.guardrailTriggered && <em>guardrail triggered</em>}
