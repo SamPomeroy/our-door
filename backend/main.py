@@ -163,6 +163,7 @@ def mmr_rerank(
         if not selected:
             best = max(remaining, key=lambda i: query_sims[i])
         else:
+
             def mmr_score(i: int) -> float:
                 redundancy = max(cosine_similarity(embeddings[i], embeddings[j]) for j in selected)
                 return lambda_param * query_sims[i] - (1 - lambda_param) * redundancy

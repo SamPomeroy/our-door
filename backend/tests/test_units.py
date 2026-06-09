@@ -91,7 +91,7 @@ def test_mmr_rerank_prefers_diverse_results():
     docs = ["a", "b", "c"]
     embeddings = [
         [1.0, 0.0],   # most relevant
-        [0.98, 0.02], # near-duplicate of a
+        [0.98, 0.02],  # near-duplicate of a
         [0.5, 0.86],  # diverse, moderately relevant
     ]
     result = main.mmr_rerank(query, docs, embeddings, k=2, lambda_param=0.3)
