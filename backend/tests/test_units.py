@@ -54,6 +54,55 @@ def test_query_chroma_returns_empty_when_unavailable():
     # may be empty (chroma down) or populated -- just must not crash
 
 
+# --- mmr reranking ---
+
+def test_cosine_similarity_identical_vectors():
+    v = [1.0, 0.0, 0.0]
+    assert main.cosine_similarity(v, v) == 1.0
+
+
+def test_cosine_similarity_orthogonal_vectors():
+    a = [1.0, 0.0]
+    b = [0.0, 1.0]
+    assert main.cosine_similarity(a, b) == 0.0
+
+
+def test_cosine_similarity_zero_vector():
+    assert main.cosine_similarity([0.0, 0.0], [1.0, 0.0]) == 0.0
+
+
+def test_mmr_rerank_returns_k_results():
+    query = [1.0, 0.0, 0.0]
+    docs = ["a", "b", "c", "d"]
+    embeddings = [
+        [1.0, 0.0, 0.0],
+        [0.9, 0.1, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0],
+    ]
+    result = main.mmr_rerank(query, docs, embeddings, k=3)
+    assert len(result) == 3
+
+
+def test_mmr_rerank_prefers_diverse_results():
+    # "b" is a near-duplicate of "a"; "c" is moderately relevant but diverse
+    # at lambda=0.3 (diversity-weighted), mmr should pick "c" over near-duplicate "b"
+    query = [1.0, 0.0]
+    docs = ["a", "b", "c"]
+    embeddings = [
+        [1.0, 0.0],   # most relevant
+        [0.98, 0.02],  # near-duplicate of a
+        [0.5, 0.86],  # diverse, moderately relevant
+    ]
+    result = main.mmr_rerank(query, docs, embeddings, k=2, lambda_param=0.3)
+    assert result[0] == "a"
+    assert result[1] == "c"
+
+
+def test_mmr_rerank_empty_input():
+    assert main.mmr_rerank([], [], [], k=5) == []
+
+
 # --- sqlite logging ---
 
 def test_insert_and_fetch_logs(tmp_path, monkeypatch):

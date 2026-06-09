@@ -138,12 +138,53 @@ def embed(text: str) -> list[float]:
     return result
 
 
+def cosine_similarity(a: list[float], b: list[float]) -> float:
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = sum(x * x for x in a) ** 0.5
+    norm_b = sum(x * x for x in b) ** 0.5
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+    return dot / (norm_a * norm_b)
+
+
+def mmr_rerank(
+    query_embedding: list[float],
+    docs: list[str],
+    embeddings: list[list[float]],
+    k: int = 5,
+    lambda_param: float = 0.6,
+) -> list[str]:
+    if not docs:
+        return []
+    selected = []
+    remaining = list(range(len(docs)))
+    query_sims = [cosine_similarity(query_embedding, emb) for emb in embeddings]
+    while len(selected) < k and remaining:
+        if not selected:
+            best = max(remaining, key=lambda i: query_sims[i])
+        else:
+
+            def mmr_score(i: int) -> float:
+                redundancy = max(cosine_similarity(embeddings[i], embeddings[j]) for j in selected)
+                return lambda_param * query_sims[i] - (1 - lambda_param) * redundancy
+            best = max(remaining, key=mmr_score)
+        selected.append(best)
+        remaining.remove(best)
+    return [docs[i] for i in selected]
+
+
 def query_chroma(embedding: list[float], n: int = 5) -> list[str]:
     try:
         client = chromadb.HttpClient(host="chromadb", port=8001)
         collection = client.get_collection("curriculum")
-        results = collection.query(query_embeddings=[embedding], n_results=n)
-        return results["documents"][0]
+        candidates = collection.query(
+            query_embeddings=[embedding],
+            n_results=min(n * 2, 20),
+            include=["documents", "embeddings"],
+        )
+        docs = candidates["documents"][0]
+        embeddings = candidates["embeddings"][0]
+        return mmr_rerank(embedding, docs, embeddings, k=n)
     except Exception:
         # chroma not yet populated or unavailable — continue without context
         return []
