@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { getLogs } from "../api.js";
+import DemoNav from "../components/DemoNav.jsx";
 import ActivityFeed from "../components/admin/ActivityFeed.jsx";
 import BarList from "../components/admin/BarList.jsx";
 import ConfusionQueue from "../components/admin/ConfusionQueue.jsx";
@@ -9,7 +10,7 @@ import MetricCard from "../components/admin/MetricCard.jsx";
 import DoorScene from "../components/DoorScene.jsx";
 import { buildAnalytics, mockAnalyticsLogs, normalizeLog } from "../data/adminAnalytics.js";
 
-export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme }) {
+export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme, demoMode, onDemoSession, onGoToSlides }) {
   const [logs, setLogs] = useState([]);
   const [query, setQuery] = useState("");
   const [severityFilter, setSeverityFilter] = useState("all");
@@ -111,6 +112,13 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme 
 
   return (
     <main className={`admin-shell theme-${theme}`}>
+      {demoMode && (
+        <DemoNav
+          activeView="admin"
+          onDemoSession={onDemoSession}
+          onGoToSlides={onGoToSlides}
+        />
+      )}
       <aside className="student-sidebar" aria-label="Admin workspace">
         <div className="brand-lockup">
           <div className="sidebar-door-scene" aria-hidden="true">
