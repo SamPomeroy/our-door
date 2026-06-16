@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { sendFeedback, sendMessage } from "../api.js";
+import DemoNav from "../components/DemoNav.jsx";
 import DoorScene from "../components/DoorScene.jsx";
 import { logger } from "../utils/logger.js";
 
@@ -67,7 +68,7 @@ function handleButtonEnter(event, action) {
   action();
 }
 
-export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) {
+export default function StudentChat({ token, theme, onSignOut, onToggleTheme, demoMode, onDemoSession, onGoToSlides }) {
   const [messages, setMessages] = useState(starterMessages);
   const [draft, setDraft] = useState("");
   const [knockType, setKnockType] = useState("hint");
@@ -178,6 +179,13 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme }) 
 
   return (
     <main className={`student-shell theme-${theme}`}>
+      {demoMode && (
+        <DemoNav
+          activeView="student"
+          onDemoSession={onDemoSession}
+          onGoToSlides={onGoToSlides}
+        />
+      )}
       <aside className="student-sidebar" aria-label="Student workspace">
         <div className="brand-lockup">
           <div className="sidebar-door-scene" aria-hidden="true">

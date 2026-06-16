@@ -2,7 +2,7 @@ import { useState } from "react";
 import { login } from "../api.js";
 import DoorScene from "../components/DoorScene.jsx";
 
-export default function Login({ theme, onLogin, onToggleTheme }) {
+export default function Login({ theme, onLogin, onToggleTheme, onEnterDemo }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -106,6 +106,10 @@ export default function Login({ theme, onLogin, onToggleTheme }) {
         </div>
 
         {error && <p className="login-error">{error}</p>}
+
+        <button type="button" className="demo-entry-btn" onClick={onEnterDemo}>
+          Demo mode
+        </button>
       </section>
     </main>
   );

@@ -2099,3 +2099,328 @@
     justify-content: center;
   }
 }
+
+/* ── demo mode ──────────────────────────────────────────────────── */
+
+.demo-entry-btn {
+  display: block;
+  width: 100%;
+  margin-top: 24px;
+  padding: 10px;
+  border: 1px solid rgba(31, 24, 36, 0.1);
+  border-radius: 12px;
+  background: transparent;
+  color: #6f6878;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.demo-entry-btn:hover {
+  background: rgba(31, 24, 36, 0.05);
+  color: #17131f;
+  border-color: rgba(31, 24, 36, 0.2);
+}
+
+/* demo landing */
+
+.demo-landing {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  padding: 48px 24px;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(210, 155, 66, 0.28), transparent 26rem),
+    radial-gradient(circle at 82% 12%, rgba(103, 78, 123, 0.34), transparent 28rem),
+    radial-gradient(circle at 50% 96%, rgba(255, 255, 255, 0.76), transparent 28rem),
+    linear-gradient(135deg, #f3eff8 0%, #e3deeb 54%, #eee7de 100%);
+  animation: ambient-drift 18s ease-in-out infinite alternate;
+}
+
+.demo-landing-header {
+  text-align: center;
+}
+
+.demo-door-scene {
+  width: 120px;
+  height: 132px;
+  margin: 0 auto 16px;
+  filter:
+    drop-shadow(0 26px 38px rgba(19, 33, 47, 0.2))
+    drop-shadow(0 0 28px rgba(210, 155, 66, 0.16));
+}
+
+.demo-door-scene canvas {
+  display: block;
+}
+
+.demo-kicker {
+  margin: 0 0 8px;
+  color: #7d5d1f;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.demo-title {
+  margin: 0 0 8px;
+  color: #17131f;
+  font-family: var(--display);
+  font-size: clamp(42px, 8vw, 72px);
+  line-height: 0.96;
+  letter-spacing: -0.01em;
+}
+
+.demo-subtitle {
+  color: #6f6878;
+  font-size: 16px;
+}
+
+.demo-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 240px));
+  gap: 16px;
+}
+
+.demo-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 20px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.54);
+  backdrop-filter: blur(26px) saturate(1.3);
+  box-shadow: 0 24px 64px rgba(31, 24, 36, 0.14);
+  text-align: center;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease,
+    background 200ms ease;
+}
+
+.demo-card:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: 0 36px 80px rgba(31, 24, 36, 0.2);
+  border-color: rgba(210, 155, 66, 0.4);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.demo-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.demo-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(210, 155, 66, 0.1);
+  color: #7d5d1f;
+}
+
+.demo-card-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.demo-card-label {
+  color: #17131f;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.demo-card-desc {
+  color: #6f6878;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.demo-card-spinner {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.5);
+  display: grid;
+  place-items: center;
+}
+
+.demo-card-spinner::after {
+  content: "";
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid rgba(31, 24, 36, 0.12);
+  border-top-color: #d29b42;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* demo nav (floating) */
+
+.demo-nav {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 5px 5px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: 0 12px 36px rgba(31, 24, 36, 0.16);
+}
+
+.demo-nav-label {
+  color: #7d5d1f;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding-right: 6px;
+}
+
+.demo-nav-btn {
+  min-width: 68px;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #2c2734;
+  font-size: 13px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.demo-nav-btn:hover:not(:disabled) {
+  background: rgba(31, 24, 36, 0.07);
+  transform: translateY(-1px);
+}
+
+.demo-nav-btn.is-active {
+  background: #17131f;
+  color: #fff;
+}
+
+.demo-nav-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.demo-nav-spinner {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* slides view */
+
+.slides-view {
+  position: relative;
+  height: 100svh;
+  display: grid;
+  place-items: center;
+  background: #0d0b12;
+  overflow: hidden;
+}
+
+.slides-video {
+  width: min(90vw, calc(90svh * (16 / 9)));
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+  object-fit: contain;
+}
+
+.slides-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.slides-arrow:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  transform: translateY(calc(-50% - 2px));
+}
+
+.slides-arrow:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.slides-arrow svg {
+  width: 22px;
+  height: 22px;
+}
+
+.slides-arrow-prev { left: 24px; }
+.slides-arrow-next { right: 24px; }
+
+.slides-counter {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.slides-counter span {
+  color: rgba(255, 255, 255, 0.25);
+  margin: 0 4px;
+}
+
+@media (max-width: 640px) {
+  .demo-cards {
+    grid-template-columns: 1fr;
+    max-width: 280px;
+  }
+}
