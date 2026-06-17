@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { login } from "../api.js";
 import DoorScene from "../components/DoorScene.jsx";
 
 const CARDS = [
@@ -43,25 +41,13 @@ const CARDS = [
   },
 ];
 
-export default function DemoLanding({ onDemoSession, onGoToSlides }) {
-  const [loading, setLoading] = useState(null);
-
-  async function handleCard(id) {
-    if (loading) return;
+export default function DemoLanding({ onSelectRole, onGoToSlides }) {
+  function handleCard(id) {
     if (id === "slides") {
       onGoToSlides();
       return;
     }
-    setLoading(id);
-    try {
-      const password = id === "student" ? "learn2024" : "teach2024";
-      const response = await login(password, id);
-      onDemoSession({ token: response.access_token, role: id });
-    } catch (err) {
-      console.error("demo login failed", err);
-    } finally {
-      setLoading(null);
-    }
+    onSelectRole(id);
   }
 
   return (
@@ -79,14 +65,12 @@ export default function DemoLanding({ onDemoSession, onGoToSlides }) {
         {CARDS.map(({ id, label, desc, icon }) => (
           <button
             key={id}
-            className={`demo-card${loading === id ? " is-loading" : ""}`}
+            className="demo-card"
             onClick={() => handleCard(id)}
-            disabled={loading !== null}
           >
             <span className="demo-card-icon">{icon}</span>
             <span className="demo-card-label">{label}</span>
             <span className="demo-card-desc">{desc}</span>
-            {loading === id && <span className="demo-card-spinner" aria-hidden="true" />}
           </button>
         ))}
       </div>
