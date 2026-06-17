@@ -10,7 +10,7 @@ import MetricCard from "../components/admin/MetricCard.jsx";
 import DoorScene from "../components/DoorScene.jsx";
 import { buildAnalytics, mockAnalyticsLogs, normalizeLog } from "../data/adminAnalytics.js";
 
-export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme, demoMode, onDemoSession, onGoToSlides }) {
+export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme, demoMode, onSelectRole, onGoToSlides }) {
   const [logs, setLogs] = useState([]);
   const [query, setQuery] = useState("");
   const [severityFilter, setSeverityFilter] = useState("all");
@@ -115,7 +115,7 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme,
       {demoMode && (
         <DemoNav
           activeView="admin"
-          onDemoSession={onDemoSession}
+          onSelectRole={onSelectRole}
           onGoToSlides={onGoToSlides}
         />
       )}

@@ -3,7 +3,7 @@ import DemoNav from "../components/DemoNav.jsx";
 
 const TOTAL = 6;
 
-export default function SlidesView({ slideIndex, onSlideChange, demoMode, onDemoSession, onGoToSlides }) {
+export default function SlidesView({ slideIndex, onSlideChange, demoMode, onSelectRole, onGoToSlides }) {
   const videoRef = useRef(null);
 
   const prev = useCallback(() => {
@@ -38,7 +38,7 @@ export default function SlidesView({ slideIndex, onSlideChange, demoMode, onDemo
       {demoMode && (
         <DemoNav
           activeView="slides"
-          onDemoSession={onDemoSession}
+          onSelectRole={onSelectRole}
           onGoToSlides={onGoToSlides}
         />
       )}

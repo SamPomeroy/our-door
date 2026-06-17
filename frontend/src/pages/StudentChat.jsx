@@ -68,7 +68,7 @@ function handleButtonEnter(event, action) {
   action();
 }
 
-export default function StudentChat({ token, theme, onSignOut, onToggleTheme, demoMode, onDemoSession, onGoToSlides }) {
+export default function StudentChat({ token, theme, onSignOut, onToggleTheme, demoMode, onSelectRole, onGoToSlides }) {
   const [messages, setMessages] = useState(starterMessages);
   const [draft, setDraft] = useState("");
   const [knockType, setKnockType] = useState("hint");
@@ -182,7 +182,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme, de
       {demoMode && (
         <DemoNav
           activeView="student"
-          onDemoSession={onDemoSession}
+          onSelectRole={onSelectRole}
           onGoToSlides={onGoToSlides}
         />
       )}

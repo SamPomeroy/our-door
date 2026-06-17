@@ -59,7 +59,7 @@ function App() {
         slideIndex={slideIndex}
         onSlideChange={setSlideIndex}
         demoMode={demoMode}
-        onDemoSession={handleDemoSession}
+        onSelectRole={handleSelectDemoRole}
         onGoToSlides={handleGoToSlides}
       />
     );
@@ -73,7 +73,7 @@ function App() {
         onSignOut={handleSignOut}
         onToggleTheme={toggleTheme}
         demoMode={demoMode}
-        onDemoSession={handleDemoSession}
+        onSelectRole={handleSelectDemoRole}
         onGoToSlides={handleGoToSlides}
       />
     );
@@ -87,7 +87,7 @@ function App() {
         onSignOut={handleSignOut}
         onToggleTheme={toggleTheme}
         demoMode={demoMode}
-        onDemoSession={handleDemoSession}
+        onSelectRole={handleSelectDemoRole}
         onGoToSlides={handleGoToSlides}
       />
     );
