@@ -1,8 +1,12 @@
+import csv
 import hashlib
+import io
 import os
+import re
 import sqlite3
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import List, Optional
 
 from dotenv import load_dotenv
@@ -11,16 +15,21 @@ load_dotenv()
 
 import chromadb
 import openai
-from fastapi import Depends, FastAPI, HTTPException
+from docx import Document
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from pypdf import PdfReader
 
 from auth import get_current_role, router as auth_router
 
 DB_PATH = "logs.db"
+CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
 
 oai = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY", ""))
 MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
+
+SUPPORTED_EXTENSIONS = {".md", ".txt", ".pdf", ".docx", ".csv"}
 
 MOCK_RESPONSES = [
     "What have you tried so far? What does the error message tell you?",
@@ -175,7 +184,7 @@ def mmr_rerank(
 
 def query_chroma(embedding: list[float], n: int = 5) -> list[str]:
     try:
-        client = chromadb.HttpClient(host="chromadb", port=8001)
+        client = chromadb.HttpClient(host=CHROMA_HOST, port=8001)
         collection = client.get_collection("curriculum")
         candidates = collection.query(
             query_embeddings=[embedding],
@@ -188,6 +197,20 @@ def query_chroma(embedding: list[float], n: int = 5) -> list[str]:
     except Exception:
         # chroma not yet populated or unavailable — continue without context
         return []
+
+
+def chunk_text(text: str, chunk_size: int = 500) -> list[str]:
+    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+    chunks, current = [], ""
+    for p in paragraphs:
+        if len(current) + len(p) > chunk_size and current:
+            chunks.append(current.strip())
+            current = p
+        else:
+            current += "\n\n" + p
+    if current:
+        chunks.append(current.strip())
+    return chunks
 
 
 def call_llm(system: str, user: str) -> str:
@@ -298,3 +321,60 @@ async def get_logs(role: str = Depends(get_current_role)):
     if role != "admin":
         raise HTTPException(status_code=403, detail="admin only")
     return fetch_logs()
+
+
+class UploadResponse(BaseModel):
+    filename: str
+    chunks_added: int
+
+
+@app.post("/upload", response_model=UploadResponse)
+async def upload_corpus(
+    file: UploadFile = File(...),
+    role: str = Depends(get_current_role),
+):
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="admin only")
+
+    ext = Path(file.filename).suffix.lower()
+    if ext not in SUPPORTED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"unsupported file type '{ext}'. supported: {', '.join(sorted(SUPPORTED_EXTENSIONS))}",
+        )
+
+    raw = await file.read()
+
+    if ext in (".md", ".txt"):
+        text = raw.decode("utf-8", errors="replace")
+    elif ext == ".pdf":
+        reader = PdfReader(io.BytesIO(raw))
+        text = "\n\n".join(page.extract_text() or "" for page in reader.pages)
+    elif ext == ".docx":
+        doc = Document(io.BytesIO(raw))
+        text = "\n\n".join(p.text for p in doc.paragraphs if p.text.strip())
+    elif ext == ".csv":
+        rows = list(csv.reader(io.StringIO(raw.decode("utf-8", errors="replace"))))
+        if not rows:
+            raise HTTPException(status_code=400, detail="csv file is empty")
+        headers = rows[0]
+        text = "\n\n".join(
+            ", ".join(f"{h}: {v}" for h, v in zip(headers, row))
+            for row in rows[1:]
+            if any(v.strip() for v in row)
+        )
+
+    chunks = chunk_text(text)
+    if not chunks:
+        raise HTTPException(status_code=400, detail="no text content found in file")
+
+    base_id = re.sub(r"[^a-z0-9]+", "-", Path(file.filename).stem.lower()).strip("-")
+    ids = [f"{base_id}-chunk-{i}" for i in range(len(chunks))]
+    metadatas = [{"source": file.filename, "chunk_index": i} for i in range(len(chunks))]
+    embeddings = [embed(chunk) for chunk in chunks]
+
+    client = chromadb.HttpClient(host=CHROMA_HOST, port=8001)
+    collection = client.get_or_create_collection("curriculum")
+    collection.upsert(ids=ids, documents=chunks, embeddings=embeddings, metadatas=metadatas)
+
+    return UploadResponse(filename=file.filename, chunks_added=len(chunks))
