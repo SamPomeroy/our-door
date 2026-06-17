@@ -37,6 +37,7 @@ function App() {
   }
 
   function handleSelectDemoRole(role) {
+    setSession(null);
     setDemoPreset({ password: DEMO_PASSWORDS[role], role });
     setShowSlides(false);
   }
