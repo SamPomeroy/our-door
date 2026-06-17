@@ -5,3 +5,6 @@ chromadb
 openai
 pydantic
 python-dotenv
+python-multipart
+pypdf
+python-docx
