@@ -70,6 +70,7 @@ export default function UploadCurriculum({ token }) {
         key={inputKey}
         id="curriculum-upload-input"
         type="file"
+        accept=".md,.txt,.pdf,.docx,.csv"
         onChange={handleFileChange}
         disabled={isUploading}
       />
