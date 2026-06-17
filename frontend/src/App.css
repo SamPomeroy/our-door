@@ -409,6 +409,58 @@
   font-size: 14px;
 }
 
+.curriculum-upload {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid rgba(31, 24, 36, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.curriculum-upload label {
+  color: #7d5d1f;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.curriculum-upload input {
+  width: 100%;
+  color: #2c2734;
+  font-size: 13px;
+}
+
+.curriculum-upload input::file-selector-button {
+  min-height: 32px;
+  margin-right: 8px;
+  border: 1px solid rgba(31, 24, 36, 0.1);
+  border-radius: 10px;
+  color: #2c2734;
+  background: rgba(255, 255, 255, 0.58);
+  font-weight: 800;
+}
+
+.curriculum-upload .ghost-button {
+  margin-top: 0;
+}
+
+.upload-status {
+  min-height: 18px;
+  color: #6f6878;
+  font-size: 13px;
+}
+
+.upload-status.success {
+  color: #237a4b;
+}
+
+.upload-status.error {
+  color: #a23a31;
+}
+
 .admin-summary {
   display: grid;
   gap: 10px;
@@ -1528,6 +1580,7 @@
 .theme-dark .login-kicker,
 .theme-dark .brand-lockup span,
 .theme-dark .sidebar-note span,
+.theme-dark .curriculum-upload label,
 .theme-dark .chat-empty-state span,
 .theme-dark .composer-meta > span,
 .theme-dark .admin-summary span,
@@ -1636,7 +1689,18 @@
 .theme-dark .ghost-button,
 .theme-dark .theme-toggle,
 .theme-dark .status-pill,
-.theme-dark .admin-summary section {
+.theme-dark .admin-summary section,
+.theme-dark .curriculum-upload {
+  color: #f0e7f4;
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(240, 184, 90, 0.14);
+}
+
+.theme-dark .curriculum-upload input {
+  color: #e8dff0;
+}
+
+.theme-dark .curriculum-upload input::file-selector-button {
   color: #f0e7f4;
   background: rgba(255, 255, 255, 0.055);
   border-color: rgba(240, 184, 90, 0.14);
@@ -1673,6 +1737,7 @@
 }
 
 .theme-dark .sidebar-note p,
+.theme-dark .upload-status,
 .theme-dark .chat-empty-state p,
 .theme-dark .message,
 .theme-dark .message.assistant,
@@ -1809,8 +1874,13 @@
 
 .theme-dark .login-error,
 .theme-dark .composer-error,
-.theme-dark .admin-error {
+.theme-dark .admin-error,
+.theme-dark .upload-status.error {
   color: #ffb5a8;
+}
+
+.theme-dark .upload-status.success {
+  color: #8fd9a8;
 }
 
 @keyframes ambient-drift {
