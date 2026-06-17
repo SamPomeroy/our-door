@@ -7,6 +7,7 @@ import ConfusionQueue from "../components/admin/ConfusionQueue.jsx";
 import KnockUsageCard from "../components/admin/KnockUsageCard.jsx";
 import LogReviewPanel from "../components/admin/LogReviewPanel.jsx";
 import MetricCard from "../components/admin/MetricCard.jsx";
+import UploadCurriculum from "../components/admin/UploadCurriculum.jsx";
 import DoorScene from "../components/DoorScene.jsx";
 import { buildAnalytics, mockAnalyticsLogs, normalizeLog } from "../data/adminAnalytics.js";
 
@@ -149,6 +150,8 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme,
           <span>Instructor view</span>
           <p>Use the logs to spot where students are getting stuck and where support may need to happen next.</p>
         </div>
+
+        <UploadCurriculum token={token} />
 
         <button className="ghost-button" type="button" onClick={handleSignOut}>
           Sign out

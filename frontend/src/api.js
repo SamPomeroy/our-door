@@ -33,3 +33,14 @@ export async function getLogs(token) {
   });
   return data;
 }
+
+export async function uploadCurriculum(file, token) {
+  // FormData sends the selected curriculum file as multipart/form-data.
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const { data } = await api.post("/upload", formData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}
