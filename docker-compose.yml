@@ -9,6 +9,7 @@ services:
       - ./backend/.env
     depends_on:
       - chromadb
+    restart: unless-stopped
 
   chromadb:
     image: chromadb/chroma
@@ -16,6 +17,7 @@ services:
       - "8001:8000"
     volumes:
       - chroma_data:/chroma/chroma
+    restart: unless-stopped
 
   frontend:
     build:
@@ -26,6 +28,7 @@ services:
       - "8090:80"
     depends_on:
       - backend
+    restart: unless-stopped
 
 volumes:
   chroma_data:
