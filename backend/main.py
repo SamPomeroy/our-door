@@ -1,4 +1,4 @@
-import csv
+﻿import csv
 import hashlib
 import io
 import os
@@ -25,6 +25,7 @@ from auth import get_current_role, router as auth_router
 
 DB_PATH = "logs.db"
 CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
+CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8001"))
 
 oai = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY", ""))
 MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
@@ -33,30 +34,30 @@ SUPPORTED_EXTENSIONS = {".md", ".txt", ".pdf", ".docx", ".csv"}
 
 MOCK_RESPONSES = [
     "What have you tried so far? What does the error message tell you?",
-    "Have a look at the relevant section in your curriculum notes — does anything there connect to what you're seeing?",
+    "Have a look at the relevant section in your curriculum notes â€” does anything there connect to what you're seeing?",
     "Try writing the smallest possible version of this that you can test on its own. What's the first step?",
 ]
 
-# student-selected knock types — student chooses what kind of help they want
+# student-selected knock types â€” student chooses what kind of help they want
 KNOCK_PROMPTS = {
     "hint": (
         "You are a Socratic tutor for a coding cohort. "
         "The student has asked for a hint. "
-        "Give only a HINT — one short guiding question that nudges them toward the relevant concept. "
+        "Give only a HINT â€” one short guiding question that nudges them toward the relevant concept. "
         "Do not give the answer, do not reference curriculum materials, do not suggest a next step. "
         "One question only. Be brief."
     ),
     "curriculum": (
         "You are a Socratic tutor for a coding cohort. "
         "The student has asked for a curriculum reference. "
-        "Give only a CURRICULUM REFERENCE — name a specific topic, concept, or pattern from their coursework that is relevant. "
+        "Give only a CURRICULUM REFERENCE â€” name a specific topic, concept, or pattern from their coursework that is relevant. "
         "Point them back to something they have already learned. Do not explain it, do not give the answer, do not ask a question. "
         "One reference only. Be brief."
     ),
     "next_step": (
         "You are a Socratic tutor for a coding cohort. "
         "The student has asked for a next step. "
-        "Give only a NEXT STEP — one concrete action they can take right now to move forward on their own. "
+        "Give only a NEXT STEP â€” one concrete action they can take right now to move forward on their own. "
         "Do not give the answer, do not explain the concept. One action only. Be brief."
     ),
 }
@@ -184,7 +185,7 @@ def mmr_rerank(
 
 def query_chroma(embedding: list[float], n: int = 5) -> list[str]:
     try:
-        client = chromadb.HttpClient(host=CHROMA_HOST, port=8001)
+        client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
         collection = client.get_collection("curriculum")
         candidates = collection.query(
             query_embeddings=[embedding],
@@ -195,7 +196,7 @@ def query_chroma(embedding: list[float], n: int = 5) -> list[str]:
         embeddings = candidates["embeddings"][0]
         return mmr_rerank(embedding, docs, embeddings, k=n)
     except Exception:
-        # chroma not yet populated or unavailable — continue without context
+        # chroma not yet populated or unavailable â€” continue without context
         return []
 
 
@@ -246,7 +247,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="our-door — socratic learning bot", lifespan=lifespan)
+app = FastAPI(title="our-door â€” socratic learning bot", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -373,7 +374,7 @@ async def upload_corpus(
     metadatas = [{"source": file.filename, "chunk_index": i} for i in range(len(chunks))]
     embeddings = [embed(chunk) for chunk in chunks]
 
-    client = chromadb.HttpClient(host=CHROMA_HOST, port=8001)
+    client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
     collection = client.get_or_create_collection("curriculum")
     collection.upsert(ids=ids, documents=chunks, embeddings=embeddings, metadatas=metadatas)
 
