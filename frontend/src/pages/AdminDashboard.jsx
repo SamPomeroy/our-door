@@ -175,11 +175,6 @@ export default function AdminDashboard({ token, theme, onSignOut, onToggleTheme,
         </header>
 
         {error && <p className="admin-error">{error}</p>}
-        {isUsingSampleData && (
-          <p className="admin-sample-note">
-            Showing sample analytics until live student logs are available from the backend.
-          </p>
-        )}
 
         <div className="admin-dashboard-scroll">
           {isLoading && (

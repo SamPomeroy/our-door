@@ -1032,13 +1032,6 @@
   font-size: 14px;
 }
 
-.admin-sample-note {
-  margin: 0 30px 8px;
-  color: #6f6878;
-  font-size: 13px;
-  font-weight: 750;
-}
-
 .admin-dashboard-scroll {
   min-height: 0;
   display: grid;
@@ -1758,8 +1751,7 @@
 .theme-dark .activity-item p,
 .theme-dark .confusion-card p,
 .theme-dark .repeated-list p,
-.theme-dark .admin-filter-grid label,
-.theme-dark .admin-sample-note {
+.theme-dark .admin-filter-grid label {
   color: #d9cae0;
 }
 
@@ -2143,10 +2135,6 @@
 
   .admin-dashboard-scroll {
     padding: 6px 14px 18px;
-  }
-
-  .admin-sample-note {
-    margin-inline: 18px;
   }
 
   .metric-grid,
