@@ -9,16 +9,22 @@
 <p align="center">
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=000" alt="React" />
   <img src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=fff" alt="Vite" />
+  <img src="https://img.shields.io/badge/React%20Three%20Fiber-9-000?logo=threedotjs&logoColor=fff" alt="React Three Fiber" />
+  <img src="https://img.shields.io/badge/Three.js-3D-000?logo=threedotjs&logoColor=fff" alt="Three.js" />
   <img src="https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=fff" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=fff" alt="Python 3.11+" />
+  <img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=fff" alt="Python 3.11" />
   <img src="https://img.shields.io/badge/OpenAI-LLM%20%2B%20Embeddings-412991?logo=openai&logoColor=fff" alt="OpenAI" />
   <img src="https://img.shields.io/badge/Chroma-Vector%20DB-5B3FD6" alt="Chroma" />
+  <img src="https://img.shields.io/badge/SQLite-Logs-003B57?logo=sqlite&logoColor=fff" alt="SQLite" />
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=fff" alt="Docker Compose" />
   <img src="https://img.shields.io/badge/GitHub%20Actions-CI-2088FF?logo=githubactions&logoColor=fff" alt="GitHub Actions" />
 </p>
 
-**Our Door** is a Socratic learning chatbot for coding cohort programs. Students ask private coding questions and receive guided responses that help them think through problems themselves. Instructors get a dashboard view into what students are asking and where they are getting stuck.
+**Our Door** is a private, curriculum-grounded Socratic learning assistant for coding cohorts. Students choose the kind of help they need without being handed a direct solution, while instructors can review conversation patterns, feedback, and curriculum coverage from an admin dashboard.
 
+<p align="center">
+  <strong><a href="https://ourdoor.sampom.me/">Open the deployed application</a></strong>
+</p>
 
 ---
 
@@ -27,6 +33,8 @@
 - [Overview](#overview)
 - [Problem](#problem)
 - [Solution](#solution)
+- [Features](#features)
+- [Live Application](#live-application)
 - [Pitch Deck](#pitch-deck)
 - [How It Works](#how-it-works)
 - [System Architecture](#system-architecture)
@@ -34,136 +42,192 @@
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Setup / Quick Start](#setup--quick-start)
+- [Troubleshooting](#troubleshooting)
 - [Environment Variables](#environment-variables)
-- [OpenAPI / API Documentation](#openapi--api-documentation)
-- [Current MVP Status](#current-mvp-status)
-- [Known Limitations](#known-limitations)
+- [API Reference](#api-reference)
+- [Testing](#testing)
+- [Current Status and Limitations](#current-status-and-limitations)
 - [Future Improvements](#future-improvements)
+- [Dev Credentials](#dev-credentials)
 - [Team](#team)
+- [Project Documentation](#project-documentation)
 - [Program Attribution](#program-attribution)
 
 ---
 
 ## Overview
 
-Our Door helps students in coding cohorts ask questions privately and get guidance that supports learning rather than direct answer-copying.
+Coding cohorts move quickly, and students do not always feel comfortable asking a question publicly. General-purpose chatbots can provide a fast answer, but that answer may bypass the learning process or ignore the course curriculum.
 
-The core idea is the **Three Knocks** model:
+Our Door gives students a private place to get unstuck through the **Three Knocks** model. For every question, the student explicitly chooses one response type:
 
-1. **Hint** - a small nudge toward the concept.
-2. **Curriculum reference** - a pointer back to relevant course material.
-3. **Next step** - a concrete action that helps the student keep moving.
+1. **Hint** - one short guiding question that nudges toward the relevant concept.
+2. **Curriculum Reference** - a pointer back to a topic or pattern from the course material.
+3. **Next Step** - one concrete action the student can take immediately.
 
-The goal is not to replace instructors or hand students final answers. The goal is to give students a safe place to get unstuck and give instructors better visibility into repeated confusion patterns.
+The goal is not to replace instructors or provide final answers. It is to preserve productive struggle, ground support in the curriculum, and surface repeated areas of confusion to instructors.
 
 ## Problem
 
-Coding cohorts move quickly. Students often work through dense materials, assignments, recordings, notes, and project requirements all at once.
+Coding cohorts move quickly. Students often work through dense course materials, assignments, recordings, notes, and project requirements at the same time. When they get stuck, asking for help can feel public or disruptive, especially when they believe everyone else is keeping up.
 
-When a student gets stuck, they may feel embarrassed to ask a question publicly. Instead, they might wait, Google the issue, ask a classmate, or use a general-purpose chatbot for a direct answer.
+Students may wait too long, search outside the curriculum, ask a classmate, or use a general-purpose chatbot that provides a complete answer. Those options can resolve the immediate blocker, but they may skip the reasoning practice the course is designed to develop.
 
-Those approaches can help in the moment, but they may not match the course curriculum or support long-term understanding.
+Instructors face the other side of the same problem: individual questions are scattered across conversations, office hours, and private messages. Without a shared view of recurring topics and response quality, it is difficult to see where the cohort needs additional support.
 
 ## Solution
 
-Our Door provides a private, curriculum-grounded chatbot experience for students and a log review flow for instructors/admins.
+Our Door combines a private student support experience with an instructor review workspace.
 
-Students can ask coding questions without feeling exposed. The assistant responds Socratically through guided hints, curriculum references, and next steps.
+Students submit a coding question and select the kind of guidance they need. The backend retrieves relevant curriculum context, generates a response constrained to the selected knock, and applies a second guardrail check before returning it. Students can then rate the response as helpful or not helpful.
 
-Instructors/admins can review logged questions and responses to see where students are getting stuck and where support may be needed.
+Instructors can review conversations, filter logs, inspect feedback and knock types, identify repeated questions, and upload new curriculum without changing the codebase. This creates a feedback loop between student needs, curriculum coverage, and instructor intervention.
+
+## Features
+
+### Student Experience
+
+- Private student/admin login flow using JWT bearer tokens.
+- Student-selected Hint, Curriculum Reference, or Next Step for each question.
+- Curriculum-grounded retrieval from Chroma before response generation.
+- Post-generation guardrail that checks for direct answers and retries with a stricter Socratic prompt when needed.
+- Thumbs-up and thumbs-down feedback saved against each response.
+- Prompt suggestions, keyboard submission, loading states, and error handling.
+- Interactive 3D door built with React Three Fiber and Three.js.
+- Door transitions for login and sign-out.
+- Light and dark themes.
+
+### Instructor Experience
+
+- Admin dashboard with conversation logs and expandable question/response details.
+- Search plus topic and inferred-severity filters.
+- Feedback status, selected knock type, and review signals on each log.
+- Dashboard views for topic volume, usage, knock usage, confusion patterns, repeated questions, and activity.
+- Curriculum upload from the admin sidebar.
+- Supported upload types: `.md`, `.txt`, `.pdf`, `.docx`, and `.csv`.
+- Uploaded files are parsed, chunked, embedded, and upserted into the Chroma `curriculum` collection.
+
+### Demo and Operations
+
+- Demo landing view with Student, Admin, and Slides navigation.
+- In-app video slide presentation.
+- Public deployment at [ourdoor.sampom.me](https://ourdoor.sampom.me/).
+- Mock mode for stable UI demos and automated tests without OpenAI calls.
+- Docker Compose services for the frontend, backend, and Chroma.
+- GitHub Actions lint and backend test workflow.
+- FastAPI Swagger and OpenAPI documentation.
+
+## Live Application
+
+The deployed application is available at:
+
+**https://ourdoor.sampom.me/**
+
+Use the development credentials below to enter the student or admin experience. The deployment depends on its hosted backend, Chroma service, and configured environment variables.
 
 ## Pitch Deck
 
-The MVP pitch deck is available as a local HTML deck:
-
 - [Live pitch deck](https://andreachurchwell.github.io/team1-aiseHackathon/)
-- [Open the pitch deck](docs/mvp_pitch_deck/index.html)
-- [Pitch script](docs/mvp_pitch_deck/pitch_script.md)
+- [MVP pitch deck](docs/mvp_pitch_deck/index.html)
+- [MVP pitch script](docs/mvp_pitch_deck/pitch_script.md)
+- [Demo pitch deck](docs/demo_pitch_deck/index.html)
 
 ## How It Works
 
 ```txt
-Student asks a question
-  -> React frontend sends request
-  -> FastAPI backend authenticates JWT
-  -> Backend retrieves curriculum context from Chroma
-  -> OpenAI generates a Socratic response
-  -> Guardrail/post-generation validator checks the response
-  -> Interaction is logged to SQLite
-  -> Instructor/admin can review logged patterns
+Student chooses a knock and asks a question
+  -> React sends the question, knock type, and JWT
+  -> FastAPI embeds the question
+  -> Chroma returns relevant curriculum chunks
+  -> MMR reranking selects diverse context
+  -> OpenAI generates the requested Socratic response type
+  -> A second guardrail check rejects direct-answer responses
+  -> The interaction is stored in SQLite
+  -> The student can submit helpful/not-helpful feedback
+  -> The admin dashboard surfaces logs and aggregate signals
 ```
 
-At a high level:
+Curriculum can enter Chroma in two ways:
 
-- The **React frontend** handles login, role-based views, student chat, and admin log review.
-- The **FastAPI backend** exposes auth, chat, and logs endpoints.
-- The **retrieval pipeline** uses Chroma to retrieve relevant curriculum context.
-- The **LLM layer** uses OpenAI for Socratic response generation and validation.
-- The **logging layer** stores conversation records in SQLite for admin review.
+- Run `ingest/ingest.py` to load the repository's starter Markdown corpus.
+- Upload a supported file from the admin dashboard to parse, chunk, embed, and store it immediately.
 
 ## System Architecture
 
-> GitHub renders Mermaid diagrams automatically. If this diagram does not render in your local editor, try viewing the README on GitHub or install a Mermaid preview extension for VS Code.
-
 ```mermaid
 flowchart LR
-  Student[Student] -->|Question| Frontend[React + Vite Frontend]
-  Admin[Instructor / Admin] -->|Review logs| Frontend
+  Student[Student] --> Frontend[React + Vite Frontend]
+  Admin[Instructor / Admin] --> Frontend
 
-  Frontend -->|POST /auth/token| Auth[JWT Auth]
-  Frontend -->|POST /chat with bearer token| API[FastAPI Backend]
-  Frontend -->|GET /logs with bearer token| API
+  Frontend -->|JWT login| Auth[POST /auth/token]
+  Frontend -->|Question + selected knock| Chat[POST /chat]
+  Frontend -->|Helpful / not helpful| Feedback[POST /feedback]
+  Frontend -->|Review logs| Logs[GET /logs]
+  Frontend -->|Curriculum file| Upload[POST /upload]
 
-  API -->|Embed question| OpenAI[OpenAI API]
-  API -->|Retrieve curriculum chunks| Chroma[(Chroma Vector DB)]
-  Chroma --> API
-  API -->|Generate Socratic response| OpenAI
-  API -->|Validate response guardrails| OpenAI
-  API -->|Store question + response| SQLite[(SQLite Logs DB)]
-  SQLite -->|Admin log review| API
-  API -->|Guided response / logs| Frontend
+  Auth --> API[FastAPI Backend]
+  Chat --> API
+  Feedback --> API
+  Logs --> API
+  Upload --> API
+
+  API -->|Embeddings + Socratic generation| OpenAI[OpenAI API]
+  API -->|Retrieve / upsert chunks| Chroma[(Chroma Vector DB)]
+  API -->|Conversations + feedback| SQLite[(SQLite Logs DB)]
 ```
 
 Exported architecture diagram:
 
 ![System architecture diagram](assets/diagrams/system-architecture.png)
 
-Major pieces:
+### Runtime Containers
 
-- **React frontend:** student chat and admin dashboard UI.
-- **FastAPI backend:** API layer for auth, chat, retrieval, validation, and logs.
-- **Chroma vector database:** stores embedded curriculum chunks for retrieval.
-- **SQLite logs database:** stores conversation logs for review.
-- **OpenAI API:** powers embeddings, Socratic responses, and guardrail validation.
-- **Admin dashboard:** lets instructors/admins review logged stuck points.
+```mermaid
+flowchart LR
+  Browser[Browser] -->|localhost:8090| Nginx[Frontend / Nginx]
+  Nginx -->|/api proxy| Backend[FastAPI :8000]
+  Backend -->|chromadb:8000| Chroma[Chroma]
+  Backend --> OpenAI[OpenAI API]
+  Backend --> SQLite[(SQLite)]
+```
+
+For local development, the backend defaults to Chroma at `localhost:8001`. In Docker Compose, `CHROMA_HOST=chromadb` and `CHROMA_PORT=8000` are set for container-to-container communication.
+
+### Architecture Components
+
+- **React frontend:** role-based login, student chat, admin analytics, curriculum upload, demo navigation, slides, themes, and 3D door interactions.
+- **FastAPI backend:** authentication, chat orchestration, feedback, logs, file parsing, curriculum ingestion, and API documentation.
+- **OpenAI API:** curriculum embeddings, Socratic response generation, and post-generation guardrail classification.
+- **Chroma:** persistent vector storage and curriculum retrieval.
+- **MMR reranking:** selects a more diverse set of retrieved curriculum chunks before generation.
+- **SQLite:** stores conversation logs, selected knock types, timestamps, topics, and feedback.
+- **Nginx:** serves the production frontend image and proxies `/api` requests to FastAPI in Docker.
 
 ## C4 Model
-
-> These Mermaid diagrams may require GitHub preview or a Mermaid-capable Markdown preview extension locally.
 
 ### Level 1: System Context
 
 ```mermaid
 flowchart LR
-  Student[Student] -->|Asks private coding questions| OurDoor[Our Door]
-  Instructor[Instructor / Admin] -->|Reviews logged stuck points| OurDoor
-  OurDoor -->|Uses curriculum-grounded LLM calls| OpenAI[OpenAI API]
+  Student[Student] -->|Requests private coding support| OurDoor[Our Door]
+  Instructor[Instructor / Admin] -->|Reviews patterns and manages curriculum| OurDoor
+  OurDoor -->|Generates responses and embeddings| OpenAI[OpenAI API]
   OurDoor -->|Stores and retrieves curriculum context| Chroma[Chroma Vector DB]
 ```
 
-### Level 2: Container Diagram
+### Level 2: Container View
 
 ```mermaid
 flowchart LR
   Student[Student] --> Frontend[React + Vite Frontend]
   Instructor[Instructor / Admin] --> Frontend
 
-  Frontend -->|JWT auth + API requests| Backend[FastAPI Backend]
-  Backend --> Auth[JWT Auth]
-  Backend --> Chat[RAG + Socratic Chat]
+  Frontend -->|JWT-authenticated requests| Backend[FastAPI Backend]
+  Backend --> Auth[JWT Authentication]
+  Backend --> RAG[Retrieval + MMR]
   Backend --> Guardrail[Post-generation Guardrail]
-  Backend --> Logs[(SQLite Logs DB)]
-  Backend --> Chroma[(Chroma Vector DB)]
+  Backend --> Logs[(SQLite Logs)]
+  Backend --> Chroma[(Chroma)]
   Backend --> OpenAI[OpenAI API]
 ```
 
@@ -171,30 +235,53 @@ flowchart LR
 
 | Area | Technology |
 |---|---|
-| Frontend | React, Vite, Axios |
+| Frontend | React 19, Vite 8, Axios |
+| 3D UI | React Three Fiber, Three.js |
 | Backend | FastAPI, Python 3.11 |
-| LLM | GPT-4o-mini via OpenAI API |
-| Embeddings | text-embedding-3-small via OpenAI API |
-| Vector DB | Chroma |
-| Auth | JWT via python-jose, with two hardcoded MVP roles |
+| LLM | `gpt-4o-mini` via OpenAI API |
+| Embeddings | `text-embedding-3-small` via OpenAI API |
+| Retrieval | Chroma with MMR reranking |
+| File parsing | PyPDF, python-docx, Python CSV/text parsing |
+| Authentication | JWT via `python-jose`; student and admin MVP roles |
 | Logging | SQLite |
+| Serving | Nginx for the production frontend image |
 | Containerization | Docker, Docker Compose |
-| CI/CD | GitHub Actions |
+| CI | GitHub Actions, Flake8, Pytest |
 
 ## Project Structure
 
 ```txt
 our-door/
-|-- .github/                 # GitHub Actions workflows
+|-- .github/
+|   `-- workflows/ci.yml             # Python lint and backend tests
 |-- assets/
-|   |-- diagrams/            # Architecture diagrams
-|   |-- logos/               # Project/program logos
-|   `-- screenshots/         # UI screenshots
-|-- backend/                 # FastAPI app, RAG pipeline, guardrails, auth
-|-- corpus/                  # Curriculum markdown files
-|-- docs/                    # Scope docs, pitch deck, architecture notes
-|-- frontend/                # React + Vite app
-|-- ingest/                  # Corpus ingestion script
+|   |-- diagrams/                    # Architecture diagram
+|   `-- logos/                       # Project and program logos
+|-- backend/
+|   |-- tests/                       # Unit, API, prompt, and integration tests
+|   |-- auth.py                      # JWT roles and token endpoint
+|   |-- main.py                      # Chat, feedback, logs, upload, RAG, guardrails
+|   |-- Dockerfile
+|   `-- requirements.txt
+|-- corpus/                          # Starter curriculum Markdown files
+|-- docs/                            # Scope, testing, architecture, and pitch decks
+|-- frontend/
+|   |-- public/slides/               # Demo slide videos
+|   |-- src/
+|   |   |-- components/
+|   |   |   |-- admin/               # Analytics, logs, and upload components
+|   |   |   |-- DemoNav.jsx
+|   |   |   `-- DoorScene.jsx        # React Three Fiber door
+|   |   |-- data/adminAnalytics.js
+|   |   |-- pages/                   # Login, student, admin, demo, slides
+|   |   |-- api.js                   # Axios API client
+|   |   |-- App.jsx
+|   |   `-- App.css
+|   |-- Dockerfile
+|   |-- nginx.conf
+|   `-- package.json
+|-- ingest/
+|   `-- ingest.py                    # Starter corpus ingestion
 |-- docker-compose.yml
 |-- OWNERSHIP.md
 `-- README.md
@@ -205,45 +292,38 @@ our-door/
 ### Prerequisites
 
 - Python 3.11+
-- Node 18+
-- Docker + Docker Compose, optional
-- OpenAI API key
+- Node.js 20+ recommended
+- Docker Desktop with Docker Compose for Chroma or the full stack
+- OpenAI API key for live embeddings and responses
 
-Platform notes:
+Windows notes:
 
-- macOS/Linux examples use `source venv/bin/activate`.
-- Windows Git Bash can also use `source venv/Scripts/activate`.
-- Windows PowerShell/CMD can use `venv\Scripts\activate`.
-- If PowerShell blocks `npm`, use `npm.cmd` instead, for example `npm.cmd run dev`.
+- Git Bash can activate the backend environment with `source venv/Scripts/activate`.
+- PowerShell can use `venv\Scripts\activate`.
+- If PowerShell blocks the `npm.ps1` shim, use `npm.cmd`.
 
-### 1. Clone the Repository
+### 1. Clone and Configure
 
 ```bash
 git clone https://github.com/SamPomeroy/our-door
 cd our-door
 ```
 
-### 2. Create Backend Environment File
-
-From the repo root:
-
-macOS/Linux/Git Bash:
+Create the backend environment file:
 
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-Windows PowerShell:
+PowerShell:
 
 ```powershell
 Copy-Item backend\.env.example backend\.env
 ```
 
-Then add your OpenAI API key and secret key to `backend/.env`.
+Add your OpenAI API key and a development secret to `backend/.env`.
 
-### 3. Install Backend Dependencies
-
-From the repo root:
+### 2. Install Backend Dependencies
 
 macOS/Linux:
 
@@ -252,6 +332,7 @@ cd backend
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+cd ..
 ```
 
 Windows Git Bash:
@@ -261,6 +342,7 @@ cd backend
 python -m venv venv
 source venv/Scripts/activate
 pip install -r requirements.txt
+cd ..
 ```
 
 Windows PowerShell:
@@ -270,43 +352,53 @@ cd backend
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
+cd ..
 ```
 
-### 4. Run Corpus Ingestion
+### 3. Start Chroma
 
-The ingestion script uses the same OpenAI and Chroma dependencies listed in `backend/requirements.txt`, so run it with the backend virtual environment active.
-
-Make sure Chroma is running before ingestion. If using Docker for Chroma:
+Start Docker Desktop, then run from the repository root:
 
 ```bash
-docker-compose up chromadb
+docker compose up -d chromadb
+docker compose ps
 ```
 
-Then, from the repo root:
+Chroma is exposed to the host at `http://localhost:8001`.
+
+### 4. Load the Starter Corpus
+
+With Chroma running, execute the ingestion script from the repository root using the backend environment:
+
+macOS/Linux:
 
 ```bash
-python ingest/ingest.py
+backend/venv/bin/python ingest/ingest.py
 ```
 
-This loads curriculum content from `corpus/` into Chroma.
+Windows:
+
+```powershell
+backend\venv\Scripts\python.exe ingest\ingest.py
+```
+
+This step seeds the Markdown files in `corpus/`. It is optional if curriculum will be added through the admin upload UI instead.
 
 ### 5. Start the Backend
 
 From `backend/` with the virtual environment active:
 
 ```bash
-uvicorn main:app --reload
+python -m uvicorn main:app --reload
 ```
 
-Backend URLs:
-
-- Backend: http://localhost:8000
+- API: http://localhost:8000
 - Swagger UI: http://localhost:8000/docs
 - OpenAPI JSON: http://localhost:8000/openapi.json
 
 ### 6. Start the Frontend
 
-In a separate terminal, from the repo root:
+In another terminal:
 
 ```bash
 cd frontend
@@ -314,7 +406,7 @@ npm install
 npm run dev
 ```
 
-Windows PowerShell alternative:
+PowerShell:
 
 ```powershell
 cd frontend
@@ -322,132 +414,197 @@ npm install
 npm.cmd run dev
 ```
 
-Frontend URL:
+The local frontend runs at http://localhost:5173 and calls the API at `http://localhost:8000` by default.
 
-- App: http://localhost:5173
+### Full Docker Stack
 
-### Optional: Run with Docker
-
-From the repo root:
-
-macOS/Linux/Git Bash:
+With Docker Desktop running and `backend/.env` configured:
 
 ```bash
-export OPENAI_API_KEY=your-openai-api-key
-docker-compose up --build
+docker compose up --build -d
+docker compose ps
 ```
 
-Windows PowerShell:
+- Frontend: http://localhost:8090
+- Backend: http://localhost:8000
+- Chroma host port: http://localhost:8001
+
+Stop the stack with:
+
+```bash
+docker compose down
+```
+
+Use `docker compose down -v` only when you intentionally want to delete the persisted Chroma volume.
+
+## Troubleshooting
+
+### Docker Cannot Connect to the Linux Engine
+
+An error referencing `dockerDesktopLinuxEngine` usually means Docker Desktop is installed but its Linux engine is not running. Open or restart Docker Desktop, wait for it to report that the engine is ready, and retry:
+
+```bash
+docker compose up -d chromadb
+docker compose ps
+```
+
+The Compose warning that the top-level `version` attribute is obsolete is informational and does not prevent startup.
+
+### Missing PDF or Word Parser
+
+If the backend reports `No module named 'pypdf'` or `No module named 'docx'`, install the committed requirements into the same virtual environment used to launch Uvicorn:
+
+```bash
+cd backend
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload
+```
+
+Using `python -m uvicorn` helps ensure Uvicorn runs from the active environment.
+
+### Curriculum Upload Fails
+
+Confirm all of the following:
+
+- The user is logged in with the admin role.
+- Chroma is running and reachable.
+- The file extension is `.md`, `.txt`, `.pdf`, `.docx`, or `.csv`.
+- `OPENAI_API_KEY` is valid when `MOCK_MODE=false`.
+- Local development uses Chroma at `localhost:8001`.
+- Docker uses `CHROMA_HOST=chromadb` and `CHROMA_PORT=8000`.
+
+The upload endpoint returns backend validation details when available. Swagger at http://localhost:8000/docs can be used to test the endpoint independently of the frontend.
+
+### PowerShell Blocks npm
+
+If PowerShell refuses to load `npm.ps1`, use the Windows command shim:
 
 ```powershell
-$env:OPENAI_API_KEY="your-openai-api-key"
-docker-compose up --build
+npm.cmd run dev
+npm.cmd run build
 ```
-
-If your environment already has `OPENAI_API_KEY` set:
-
-```bash
-docker-compose up --build
-```
-
-Docker/database behavior may require local environment adjustment depending on your machine and Chroma setup.
 
 ## Environment Variables
 
-Copy `backend/.env.example` to `backend/.env`.
-
-Example `backend/.env.example`:
+`backend/.env`:
 
 ```env
-OPENAI_API_KEY=your-openai-api-key
+OPENAI_API_KEY=your-key-here
 SECRET_KEY=replace-with-a-secure-dev-secret
-# Optional for local development/demo stability:
-MOCK_MODE=true
+MOCK_MODE=false
 ```
 
-`OPENAI_API_KEY` is required for OpenAI LLM and embedding calls.
-
-`SECRET_KEY` is used to sign JWTs for the MVP auth flow.
-
-### Mock Mode
-
-For development and demo purposes, the project supports a mock mode that allows the frontend and backend flow to run without making live OpenAI API calls.
-
-This is useful for:
-
-- Local UI development
-- Demo stability
-- Offline testing
-- Reducing API usage during development
-
-Example:
-
-```env
-MOCK_MODE=true
-```
-
-Mock mode is intended for local development and demos only.
+| Variable | Default | Purpose |
+|---|---|---|
+| `OPENAI_API_KEY` | Empty | Required for live OpenAI embeddings and responses |
+| `SECRET_KEY` | Development fallback in code | Signs JWTs; set a unique value outside local demos |
+| `MOCK_MODE` | `false` | Uses deterministic local embeddings and mock responses when `true` |
+| `CHROMA_HOST` | `localhost` | Chroma hostname; Docker Compose sets `chromadb` |
+| `CHROMA_PORT` | `8001` | Chroma port; Docker Compose sets container port `8000` |
+| `VITE_API_URL` | `http://localhost:8000` | Frontend API base URL; Docker build sets `/api` |
 
 Do not commit `.env` files.
 
-## OpenAPI / API Documentation
+### Mock Mode
 
-FastAPI automatically generates API documentation when the backend is running.
+Set `MOCK_MODE=true` for UI development, demos, or automated tests that should not make OpenAI calls:
 
-- Swagger UI: http://localhost:8000/docs
-- Raw OpenAPI JSON: http://localhost:8000/openapi.json
+```env
+MOCK_MODE=true
+```
 
-Endpoint summary:
+Mock mode does not remove the Chroma dependency from curriculum uploads. Uploads still need a running Chroma service because the endpoint upserts the generated chunks.
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| `POST` | `/auth/token` | Login with role/password and receive a JWT |
-| `POST` | `/chat` | Send a student question and receive a Socratic response |
-| `GET` | `/logs` | Retrieve logged conversations for admin review |
+## API Reference
 
-## Current MVP Status
+Authenticated endpoints expect:
 
-MVP includes or is focused on:
+```http
+Authorization: Bearer <token>
+```
 
-- FastAPI backend structure
-- RAG/retrieval pipeline
-- OpenAI-powered Socratic responses
-- Guardrail/post-generation validation
-- Student-facing React frontend
-- Admin dashboard/log review
-- SQLite logging
-- Two hardcoded MVP roles: student and admin
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| `POST` | `/auth/token` | Public | Exchange role/password for a JWT |
+| `POST` | `/chat` | Authenticated | Send a question and selected `knock_type` |
+| `POST` | `/feedback` | Authenticated | Save helpful/not-helpful feedback for a log |
+| `GET` | `/logs` | Admin | Retrieve conversation and feedback logs |
+| `POST` | `/upload` | Admin | Upload curriculum as multipart form data under key `file` |
 
-This is a capstone MVP, not a production deployment.
+Example chat body:
 
-## Known Limitations
+```json
+{
+  "message": "Why does Python scope work this way?",
+  "knock_type": "curriculum"
+}
+```
 
-- Dev-only hardcoded roles and passwords.
-- Auth is not production-ready.
-- Curriculum corpus is limited to the current project materials.
-- Retrieval quality depends on what has been ingested into Chroma.
-- OpenAI API key is required for LLM and embedding calls.
-- Admin analytics are MVP-level.
-- The chatbot is intended to support learning, not replace instructor support.
-- Docker/database setup may require local environment adjustment.
+Valid `knock_type` values are `hint`, `curriculum`, and `next_step`.
+
+Successful upload response:
+
+```json
+{
+  "filename": "course-notes.pdf",
+  "chunks_added": 42
+}
+```
+
+## Testing
+
+Backend tests:
+
+```bash
+cd backend
+python -m pip install pytest httpx
+python -m pytest tests/ -v --ignore=tests/test_integration.py
+```
+
+Live integration tests require the running stack and a valid OpenAI API key:
+
+```bash
+cd backend
+python -m pytest tests/test_integration.py -v
+```
+
+Frontend production build:
+
+```bash
+cd frontend
+npm run build
+```
+
+See [docs/TESTING.md](docs/TESTING.md) for the external tester workflow and API smoke tests.
+
+## Current Status and Limitations
+
+Our Door currently includes the Phase 2 curriculum upload, student-selected response type, feedback, MMR retrieval, analytics UI, and demo presentation work. The core student, instructor, retrieval, upload, and feedback flows are implemented.
+
+It remains a capstone MVP rather than a production deployment:
+
+- Student and admin credentials are hardcoded for development.
+- There are no individual user accounts, cohorts, or persistent student histories.
+- JWT storage and authentication are not production hardened.
+- SQLite and local Chroma persistence are intended for a small demo environment.
+- Admin severity, student labels, and several aggregate analytics are inferred or presentation-oriented rather than a complete learning analytics system.
+- Mock mode uses zero-vector embeddings and canned responses.
+- Live response and upload embedding paths require OpenAI API access.
+- Upload success requires Chroma to be running and reachable.
+- The assistant supports learning but does not replace instructor review.
 
 ## Future Improvements
 
-- Persistent user accounts.
-- Stronger analytics and learning outcome tracking.
-- Richer instructor dashboard.
-- Expanded curriculum ingestion sources.
-- Better evaluation metrics for response quality and learning support.
-- Deployment hardening.
-- Accessibility and UI polish.
-
-## Team
-
-| Member | Component |
-|---|---|
-| Sam | FastAPI backend, RAG pipeline, guardrail system |
-| Ricky | Data ingestion, corpus pipeline, CI/CD |
-| Andrea | React frontend, admin dashboard, documentation |
+- Replace hardcoded development roles with persistent user accounts and secure credential management.
+- Add multi-cohort support, instructor-managed courses, and student-specific history.
+- Move production data from local SQLite and Chroma volumes to managed persistent services.
+- Add file-size limits, upload progress, duplicate-source handling, and curriculum management controls.
+- Expand evaluation beyond thumbs feedback with retrieval quality, guardrail, and learning-support metrics.
+- Replace presentation-oriented inferred analytics with validated cohort and learning outcome measures.
+- Add source citations to student responses and richer curriculum metadata.
+- Improve accessibility testing, responsive behavior, and reduced-motion support.
+- Add frontend tests and broaden CI coverage across the full stack.
+- Harden deployment configuration, observability, secrets management, and rate limiting.
 
 ## Dev Credentials
 
@@ -456,15 +613,24 @@ For local development only:
 - Student password: `learn2024`
 - Admin password: `teach2024`
 
----
+## Team
 
-## MVP Scope
+| Member | Component |
+|---|---|
+| Sam | FastAPI backend, RAG pipeline, guardrail system |
+| Ricky | Data ingestion, corpus pipeline, CI/CD |
+| Andrea | React frontend, 3D experience, admin dashboard, documentation |
 
-See [docs/SCOPE.md](docs/SCOPE.md).
+## Project Documentation
+
+- [MVP scope](docs/SCOPE.md)
+- [Phase 2 plan](docs/PHASE2.md)
+- [Testing guide](docs/TESTING.md)
+- [Ownership](OWNERSHIP.md)
 
 ## Program Attribution
 
-Built for AISE 26 Capstone | Columbia University 
+Built for AISE 26 Capstone | Columbia University
 
 <p align="center">
   <img src="assets/logos/columbia_white_logo.png" alt="Columbia University" width="128" />
