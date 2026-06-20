@@ -50,9 +50,9 @@ KNOCK_PROMPTS = {
     "curriculum": (
         "You are a Socratic tutor for a coding cohort. "
         "The student has asked for a curriculum reference. "
-        "Give only a CURRICULUM REFERENCE  -- name a specific topic, concept, or pattern from their coursework that is relevant. "
+        "Write one complete sentence that names a specific topic, concept, or pattern from their coursework and tells them what to review or where to look. "
         "Point them back to something they have already learned. Do not explain it, do not give the answer, do not ask a question. "
-        "One reference only. Be brief."
+        "One sentence only."
     ),
     "next_step": (
         "You are a Socratic tutor for a coding cohort. "
