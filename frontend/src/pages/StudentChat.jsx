@@ -132,6 +132,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme, de
           logId: response.log_id,
           feedback: null,
           knocks: response.knock ? [{ title: getKnockTitle(response.knock), body: assistantText }] : null,
+          source: response.sources?.length ? response.sources.join(", ") : null,
         },
       ]);
       setChatStatus("success");

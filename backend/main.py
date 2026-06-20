@@ -163,7 +163,7 @@ def mmr_rerank(
     embeddings: list[list[float]],
     k: int = 5,
     lambda_param: float = 0.6,
-) -> list[str]:
+) -> list[int]:
     if not docs:
         return []
     selected = []
@@ -180,24 +180,29 @@ def mmr_rerank(
             best = max(remaining, key=mmr_score)
         selected.append(best)
         remaining.remove(best)
-    return [docs[i] for i in selected]
+    return selected
 
 
-def query_chroma(embedding: list[float], n: int = 5) -> list[str]:
+def query_chroma(embedding: list[float], n: int = 5) -> tuple[list[str], list[str]]:
     try:
         client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
-        collection = client.get_collection("curriculum")
+        collection = client.get_collection(“curriculum”)
         candidates = collection.query(
             query_embeddings=[embedding],
             n_results=min(n * 2, 20),
-            include=["documents", "embeddings"],
+            include=[“documents”, “embeddings”, “metadatas”],
         )
-        docs = candidates["documents"][0]
-        embeddings = candidates["embeddings"][0]
-        return mmr_rerank(embedding, docs, embeddings, k=n)
+        docs = candidates[“documents”][0]
+        embeddings = candidates[“embeddings”][0]
+        metadatas = candidates[“metadatas”][0]
+        indices = mmr_rerank(embedding, docs, embeddings, k=n)
+        selected_docs = [docs[i] for i in indices]
+        sources = list(dict.fromkeys(
+            metadatas[i][“source”] for i in indices if metadatas[i].get(“source”)
+        ))
+        return selected_docs, sources
     except Exception:
-        # chroma not yet populated or unavailable â€” continue without context
-        return []
+        return [], []
 
 
 def chunk_text(text: str, chunk_size: int = 500) -> list[str]:
@@ -271,6 +276,7 @@ class ChatResponse(BaseModel):
     response: str
     knock: str
     log_id: int
+    sources: list[str] = []
 
 
 class FeedbackRequest(BaseModel):
@@ -295,7 +301,7 @@ async def chat(req: ChatRequest, role: str = Depends(get_current_role)):
     knock_type = req.knock_type if req.knock_type in KNOCK_PROMPTS else "hint"
 
     embedding = embed(req.message)
-    chunks = query_chroma(embedding)
+    chunks, sources = query_chroma(embedding)
     context = "\n\n".join(chunks) if chunks else "No curriculum context available."
     user_prompt = f"Curriculum context:\n{context}\n\nStudent question: {req.message}"
 
@@ -305,7 +311,7 @@ async def chat(req: ChatRequest, role: str = Depends(get_current_role)):
         response = call_llm(STRICT_FALLBACK_PROMPT, user_prompt)
 
     log_id = insert_log(req.message, response, knock_type)
-    return ChatResponse(response=response, knock=KNOCK_LABELS[knock_type], log_id=log_id)
+    return ChatResponse(response=response, knock=KNOCK_LABELS[knock_type], log_id=log_id, sources=sources)
 
 
 @app.post("/feedback")
