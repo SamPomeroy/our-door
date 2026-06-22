@@ -132,7 +132,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme, de
           logId: response.log_id,
           feedback: null,
           knocks: response.knock ? [{ title: getKnockTitle(response.knock), body: assistantText }] : null,
-          source: response.sources?.length ? response.sources.join(", ") : null,
+          source: knockType === "curriculum" && response.sources?.length ? response.sources.join(", ") : null,
         },
       ]);
       setChatStatus("success");
@@ -301,7 +301,7 @@ export default function StudentChat({ token, theme, onSignOut, onToggleTheme, de
                 )}
                 {message.source && (
                   <div className="source-strip">
-                    <span>Referenced</span>
+                    <span>Source</span>
                     <p>{message.source}</p>
                   </div>
                 )}
