@@ -48,9 +48,10 @@ def test_guardrail_mock_always_passes():
 # --- query_chroma ---
 
 def test_query_chroma_returns_empty_when_unavailable():
-    # chroma isn't running in CI -- should gracefully return []
-    result = main.query_chroma([0.0] * 1536)
-    assert isinstance(result, list)
+    # chroma isn't running in CI -- should gracefully return ([], [])
+    docs, sources = main.query_chroma([0.0] * 1536)
+    assert isinstance(docs, list)
+    assert isinstance(sources, list)
     # may be empty (chroma down) or populated -- just must not crash
 
 
@@ -95,8 +96,9 @@ def test_mmr_rerank_prefers_diverse_results():
         [0.5, 0.86],  # diverse, moderately relevant
     ]
     result = main.mmr_rerank(query, docs, embeddings, k=2, lambda_param=0.3)
-    assert result[0] == "a"
-    assert result[1] == "c"
+    # mmr_rerank returns indices into docs, not the doc strings themselves
+    assert docs[result[0]] == "a"
+    assert docs[result[1]] == "c"
 
 
 def test_mmr_rerank_empty_input():
