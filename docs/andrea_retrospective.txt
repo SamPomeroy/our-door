@@ -1,0 +1,30 @@
+Our Door Retrospective
+Looking Back
+
+When we started the Hackathon, the goal was to build an AI-powered learning platform that helped students think through problems instead of simply giving them answers. I really liked that idea because I wanted to build something that actually supported learning rather than replacing it.
+
+As the project grew, I realized that building AI applications involves a lot more than just connecting to a language model. There were decisions around retrieval, guardrails, the user experience, and making sure the responses stayed grounded in the curriculum. It ended up being a much bigger challenge than I expected, but I learned a lot because of it.
+
+What Changed and Why
+
+As development continued, some of my expectations changed.
+
+At first, I thought the focus would mostly be on adding features. Instead, I learned that making the existing features reliable was much more important. We spent a lot of time testing, refining responses, improving the demo, and making sure the application behaved consistently. Looking back, I think those were the right tradeoffs because a stable application is much more valuable than one with a long list of unfinished features.
+
+Another thing that changed was how much time we spent practicing our final presentation. We recorded several versions, took feedback from Sarah and others after each recording, and kept making improvements. By the time we recorded the final version, it felt much more natural, and I think all of that practice really showed.
+
+What I Would Do Differently
+
+Looking back, one thing I wish I had done differently was spend more time thinking about how we used metadata in our retrieval pipeline. We used metadata, but I think there was a lot more potential there. Organizing and using it more effectively could have improved retrieval accuracy and made the system even stronger.
+
+I also would have started testing different scenarios earlier instead of waiting until later in development. The application ended up stable, but starting that process sooner probably would have helped us catch smaller issues even earlier.
+
+Finally, I would have spent more time experimenting with different retrieval strategies from the beginning. As I learned more about RAG systems throughout the project, I realized there were several ideas I would have liked to explore if time had allowed.
+
+Final Thoughts
+
+This project pushed me more than any project I've worked on before. It challenged me to learn new technologies, work closely with a team, accept feedback, and keep improving instead of settling for the first solution.
+
+One thing I'm especially proud of is how much our final demo improved. We put a lot of time into practicing, taking feedback seriously, and making changes after every recording. Sarah's feedback was incredibly helpful throughout that process, and I honestly think it made a huge difference in the quality of our final presentation.
+
+Overall, this capstone gave me a much better understanding of what it takes to build a real AI application from start to finish. More importantly, it gave me confidence that I can continue building projects like this and keep growing as a software engineer.
