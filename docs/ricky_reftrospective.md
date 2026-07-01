@@ -1,0 +1,11 @@
+# Personal Reflection
+
+At the hackathon, my plan was to help build a simple version of Our Door that students could use. The main idea was to give students a private place to ask coding questions, give helpful guidance instead of full answers, and let instructors see where students were getting stuck. At that point, the goal was to make the main system work, not to make everything polished.
+
+What changed was the scope of the project. Our first MVP was smaller. It focused on curriculum ingestion, the chat system, guardrails, logging, and a basic admin view. Later, we added more features like file upload, student choice for response type, feedback, reranking, and more demo work. We made these changes because we saw problems in the first version. The early version could answer questions, but students did not have enough control over the kind of help they wanted. It also was not easy for admins to add new curriculum without changing code. Some changes were also made to help us show the project more clearly.
+
+I think the biggest tradeoff was doing more features instead of making the core parts stronger. The extra features were useful, but each one took time away from improving the main experience. In some cases, we chose things that helped the demo more than the long-term product. For example, hardcoded roles, local storage, and simple analytics worked for an MVP, but they also show that we chose speed over a stronger system.
+
+If I could do it differently, I would cut the scope earlier and save more time for testing and user feedback. I would focus first on one strong student flow and one strong instructor flow before adding more features. I also would test sooner to see if the response types were actually helpful for students. I think we made good progress, but I would trade some extra features for a cleaner and more tested product.
+
+Overall, this project taught me that making something work is not the same as keeping it focused. We improved the project as we went, but every improvement took time and attention. If I planned it again, I would be more strict about what had to be in the first version and what could wait until later.
